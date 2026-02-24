@@ -21,25 +21,10 @@
   <div class="container wide">
     <div class="hero" style="padding-bottom: 1rem;">
       <h1>Compare Profiles</h1>
-      <p>Enter two result codes to see how your DISC profiles compare side by side.</p>
+      <p>Add result codes to compare DISC profiles side by side. You can compare as many people as you like.</p>
     </div>
 
-    <div class="compare-inputs">
-      <div class="input-group">
-        <label>Person A</label>
-        <input type="text" id="input-a" placeholder="Paste result code...">
-        <button class="btn btn-ghost" id="load-mine-btn" style="font-size: 0.8rem;">Load my saved result</button>
-      </div>
-      <div class="vs">vs</div>
-      <div class="input-group">
-        <label>Person B</label>
-        <input type="text" id="input-b" placeholder="Paste result code...">
-      </div>
-    </div>
-
-    <div class="compare-actions">
-      <button class="btn btn-primary" id="compare-btn">Compare →</button>
-    </div>
+    <div id="profiles-input"></div>
 
     <div id="compare-result" class="compare-result"></div>
   </div>

@@ -83,6 +83,90 @@ export function getShareUrl(scores) {
   return `${base}results.html?r=${code}`;
 }
 
+// Behavioral axes: each returns -100..+100
+export const AXES = [
+  { id: 'assertive',  left: 'Accommodating', right: 'Assertive',    calc: s => ((s.D + s.I) - (s.S + s.C)) / 2, colorL: '#2A9D8F', colorR: '#E63946' },
+  { id: 'expressive', left: 'Reserved',      right: 'Expressive',   calc: s => ((s.I + s.S) - (s.D + s.C)) / 2, colorL: '#457B9D', colorR: '#F4A261' },
+  { id: 'pace',       left: 'Deliberate',    right: 'Fast-Paced',   calc: s => ((s.D + s.I) - (s.S + s.C)) / 2, colorL: '#2A9D8F', colorR: '#E63946' },
+  { id: 'focus',      left: 'Task-Focused',  right: 'People-Focused', calc: s => ((s.I + s.S) - (s.D + s.C)) / 2, colorL: '#457B9D', colorR: '#F4A261' },
+  { id: 'risk',       left: 'Cautious',      right: 'Risk-Taking',  calc: s => ((s.D * 1.5 + s.I * 0.5) - (s.C * 1.5 + s.S * 0.5)) / 2, colorL: '#457B9D', colorR: '#E63946' },
+  { id: 'structure',  left: 'Flexible',      right: 'Structured',   calc: s => ((s.C * 1.5 + s.S * 0.5) - (s.I * 1.5 + s.D * 0.5)) / 2, colorL: '#F4A261', colorR: '#457B9D' },
+];
+
+export function computeAxes(scores) {
+  return AXES.map(axis => ({
+    ...axis,
+    value: Math.round(Math.max(-100, Math.min(100, axis.calc(scores))))
+  }));
+}
+
+export function renderAxisSliders(scores, containerId) {
+  const axes = computeAxes(scores);
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = axes.map(a => {
+    const pct = (a.value + 100) / 2; // 0..100
+    return `
+      <div class="axis-slider-row">
+        <span class="axis-label axis-label-left">${a.left}</span>
+        <div class="axis-track">
+          <div class="axis-track-left" style="background: ${a.colorL}20;"></div>
+          <div class="axis-track-right" style="background: ${a.colorR}20;"></div>
+          <div class="axis-center-line"></div>
+          <div class="axis-marker" style="left: ${pct}%; background: ${pct > 50 ? a.colorR : a.colorL}; box-shadow: 0 0 8px ${pct > 50 ? a.colorR : a.colorL}88;"></div>
+        </div>
+        <span class="axis-label axis-label-right">${a.right}</span>
+      </div>`;
+  }).join('');
+}
+
+export function renderMultiAxisSliders(profiles, containerId) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const PROFILE_COLORS = ['#ffffff', '#9966ff', '#ff6b9d', '#4ecdc4', '#ffe66d', '#ff8a5c', '#a8e6cf', '#ff4757'];
+  el.innerHTML = AXES.map(axis => {
+    const markers = profiles.map((p, i) => {
+      const val = Math.round(Math.max(-100, Math.min(100, axis.calc(p.scores))));
+      const pct = (val + 100) / 2;
+      const col = PROFILE_COLORS[i % PROFILE_COLORS.length];
+      return `<div class="axis-marker" style="left:${pct}%;background:${col};box-shadow:0 0 8px ${col}88;z-index:${10-i};" title="${p.name || 'Person '+(i+1)}: ${val > 0 ? '+' : ''}${val}"></div>`;
+    }).join('');
+    return `
+      <div class="axis-slider-row">
+        <span class="axis-label axis-label-left">${axis.left}</span>
+        <div class="axis-track">
+          <div class="axis-track-left" style="background: ${axis.colorL}20;"></div>
+          <div class="axis-track-right" style="background: ${axis.colorR}20;"></div>
+          <div class="axis-center-line"></div>
+          ${markers}
+        </div>
+        <span class="axis-label axis-label-right">${axis.right}</span>
+      </div>`;
+  }).join('');
+}
+
+// Multi-profile URL encoding: name:code|name:code|...  base64'd
+export function encodeProfiles(profiles) {
+  const str = profiles.map(p => `${p.name || ''}:${encodeResult(p.scores)}`).join('|');
+  return btoa(str).replace(/=+$/, '');
+}
+
+export function decodeProfiles(encoded) {
+  try {
+    const pad = encoded + '==='.slice(0, (4 - encoded.length % 4) % 4);
+    const str = atob(pad);
+    return str.split('|').map(part => {
+      const idx = part.indexOf(':');
+      const name = part.slice(0, idx);
+      const code = part.slice(idx + 1);
+      const scores = decodeResult(code);
+      return scores ? { name, scores } : null;
+    }).filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
 function logicalSize(canvas) {
   const dpr = window.devicePixelRatio || 1;
   return { w: canvas.width / dpr, h: canvas.height / dpr };

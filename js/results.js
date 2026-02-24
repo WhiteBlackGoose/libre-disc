@@ -1,5 +1,6 @@
 import { getPersonality, DISC_COLORS } from './personalities.js';
-import { decodeResult, loadResult, determineType, encodeResult, drawDiamondChart, drawAxesPlot, drawDiscWheel, getShareUrl } from './shared.js';
+import { decodeResult, loadResult, determineType, encodeResult, drawDiamondChart, drawAxesPlot, drawDiscWheel, getShareUrl, renderAxisSliders } from './shared.js';
+import { getTypeIcon } from './icons.js';
 
 function init() {
   const params = new URLSearchParams(window.location.search);
@@ -36,13 +37,29 @@ function init() {
   renderResults(scores, personality);
 }
 
+const APPROACH_LABELS = {
+  giving_feedback: { icon: '💬', title: 'Giving Feedback' },
+  criticism:       { icon: '⚠️', title: 'Constructive Criticism' },
+  supporting:      { icon: '🤲', title: 'Supporting Them' },
+  collaborating:   { icon: '🤝', title: 'Collaborating' },
+  motivating:      { icon: '🔥', title: 'Motivating' }
+};
+
 function renderResults(scores, personality) {
   const container = document.getElementById('results-content');
   const code = encodeResult(scores);
 
+  const approachHtml = personality.approach ? Object.entries(personality.approach).map(([key, text]) => {
+    const label = APPROACH_LABELS[key] || { icon: '📌', title: key };
+    return `<div class="approach-card">
+      <div class="approach-title"><span class="approach-icon">${label.icon}</span> ${label.title}</div>
+      <p>${text}</p>
+    </div>`;
+  }).join('') : '';
+
   container.innerHTML = `
     <div class="result-header">
-      <div class="emoji">${personality.emoji}</div>
+      <div class="result-icon">${getTypeIcon(personality.id, 72, personality.color)}</div>
       <div class="type-badge" style="background: ${personality.color}22; color: ${personality.color}; border: 1px solid ${personality.color}44;">
         ${personality.id}
       </div>
@@ -65,6 +82,11 @@ function renderResults(scores, personality) {
       </div>
     </div>
 
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <h3 style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); margin-bottom: 1.25rem;">Behavioral Dimensions</h3>
+      <div id="axis-sliders"></div>
+    </div>
+
     <div class="result-grid">
       <div class="card">
         <h3>Strengths</h3>
@@ -83,7 +105,14 @@ function renderResults(scores, personality) {
       </div>
     </div>
 
-    <div class="card chart-card" style="margin-bottom: 1.5rem; padding: 2rem;">
+    ${approachHtml ? `
+    <div class="card" style="margin-top: 1.5rem;">
+      <h3 style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); margin-bottom: 0.5rem;">How to Approach This Type</h3>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">Tips for working with someone who has this personality profile.</p>
+      <div class="approach-grid">${approachHtml}</div>
+    </div>` : ''}
+
+    <div class="card chart-card" style="margin-top: 1.5rem; padding: 2rem;">
       <h3>Your Position on the DISC Wheel</h3>
       <canvas id="disc-wheel" width="380" height="380" style="max-width: 380px;"></canvas>
     </div>
@@ -94,7 +123,7 @@ function renderResults(scores, personality) {
         <canvas id="diamond-chart" width="300" height="300" style="max-width: 300px;"></canvas>
       </div>
       <div class="card chart-card">
-        <h3>Behavioral Axes</h3>
+        <h3>Quadrant Plot</h3>
         <canvas id="axes-chart" width="300" height="300" style="max-width: 300px;"></canvas>
       </div>
     </div>
@@ -110,12 +139,15 @@ function renderResults(scores, personality) {
         <span style="color: var(--text-secondary); font-size: 0.85rem;">Result code: </span>
         <code style="color: var(--color-i); font-family: 'JetBrains Mono', monospace;">${code}</code>
       </div>
-      <div style="margin-top: 1.5rem; display: flex; gap: 0.75rem; justify-content: center;">
+      <div style="margin-top: 1.5rem; display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
         <a href="compare.html?a=${code}" class="btn btn-secondary">Compare with Someone</a>
         <a href="index.html" class="btn btn-ghost">Retake Test</a>
       </div>
     </div>
   `;
+
+  // Render axis sliders
+  renderAxisSliders(scores, 'axis-sliders');
 
   // Draw charts
   requestAnimationFrame(() => {
