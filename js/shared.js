@@ -71,13 +71,16 @@ export function extractCode(input) {
 
 export function encodeProfiles(profiles) {
   const parts = profiles.map(p => (p.name ? p.name + ':' : '') + p.code);
-  return btoa(parts.join('|')).replace(/=+$/, '');
+  const bytes = new TextEncoder().encode(parts.join('|'));
+  return btoa(String.fromCharCode(...bytes)).replace(/=+$/, '');
 }
 
 export function decodeProfiles(encoded) {
   try {
     const padded = encoded + '==='.slice(0, (4 - encoded.length % 4) % 4);
-    const str = atob(padded);
+    const binary = atob(padded);
+    const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+    const str = new TextDecoder().decode(bytes);
     return str.split('|').map(part => {
       const colonIdx = part.indexOf(':');
       if (colonIdx > 0 && colonIdx < part.length - 1) {
