@@ -1,30 +1,17 @@
-export const QUESTIONS = [
-  { id: 1,  text: "I take charge in group situations without hesitation.", dimension: "D" },
-  { id: 2,  text: "I find it easy to strike up conversations with strangers.", dimension: "I" },
-  { id: 3,  text: "I prefer a stable, predictable routine in my daily life.", dimension: "S" },
-  { id: 4,  text: "I pay close attention to details and strive for accuracy.", dimension: "C" },
-  { id: 5,  text: "I prefer quick, decisive action over lengthy deliberation.", dimension: "D" },
-  { id: 6,  text: "I tend to see the bright side of most situations.", dimension: "I" },
-  { id: 7,  text: "I'm the person friends come to when they need a good listener.", dimension: "S" },
-  { id: 8,  text: "I prefer to gather all the facts before making a decision.", dimension: "C" },
-  { id: 9,  text: "I'm comfortable pushing back when I disagree with someone.", dimension: "D" },
-  { id: 10, text: "I enjoy energizing and motivating the people around me.", dimension: "I" },
-  { id: 11, text: "I value loyalty and long-term relationships deeply.", dimension: "S" },
-  { id: 12, text: "I follow established rules and procedures carefully.", dimension: "C" },
-  { id: 13, text: "I set ambitious goals and work relentlessly to achieve them.", dimension: "D" },
-  { id: 14, text: "I thrive in environments where I can express myself freely.", dimension: "I" },
-  { id: 15, text: "I prefer to take my time and do things thoroughly.", dimension: "S" },
-  { id: 16, text: "I hold myself and others to very high standards.", dimension: "C" },
-  { id: 17, text: "I'd rather lead a project than follow someone else's direction.", dimension: "D" },
-  { id: 18, text: "Being around people gives me energy and excitement.", dimension: "I" },
-  { id: 19, text: "I try to avoid confrontation whenever possible.", dimension: "S" },
-  { id: 20, text: "I'm skeptical of new ideas until I see solid evidence.", dimension: "C" },
-  { id: 21, text: "I get frustrated when progress feels too slow.", dimension: "D" },
-  { id: 22, text: "I'm often the one to lighten the mood in tense situations.", dimension: "I" },
-  { id: 23, text: "I work best when I have clear expectations and a supportive team.", dimension: "S" },
-  { id: 24, text: "I prefer working independently where I can focus deeply.", dimension: "C" },
-  { id: 25, text: "Competition motivates me to perform at my best.", dimension: "D" },
-  { id: 26, text: "I prefer to talk through ideas rather than work in silence.", dimension: "I" },
-  { id: 27, text: "I prefer gradual, well-planned change over sudden disruption.", dimension: "S" },
-  { id: 28, text: "I believe quality should never be sacrificed for speed.", dimension: "C" }
+import { t } from './i18n.js';
+
+const QUESTION_DIMS = [
+  'D','I','S','C','D','I','S','C',
+  'D','I','S','C','D','I','S','C',
+  'D','I','S','C','D','I','S','C',
+  'D','I','S','C'
 ];
+
+export function getQuestions() {
+  const texts = t('questions');
+  return QUESTION_DIMS.map((dim, i) => ({
+    id: i + 1,
+    dimension: dim,
+    text: Array.isArray(texts) ? (texts[i] || `Question ${i + 1}`) : `Question ${i + 1}`
+  }));
+}

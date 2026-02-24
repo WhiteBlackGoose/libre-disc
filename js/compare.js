@@ -1,255 +1,279 @@
+import { initI18n, t, onLocaleChange } from './i18n.js';
+import { renderLayout } from './layout.js';
 import { getPersonality, DISC_COLORS } from './personalities.js';
-import { decodeResult, determineType, loadResult, encodeResult, encodeProfiles, decodeProfiles, drawDiamondChart, drawAxesPlot, renderMultiAxisSliders } from './shared.js';
-import { getTypeIcon } from './icons.js';
+import { TYPE_ICONS } from './icons.js';
+import {
+  decodeResult, encodeResult, extractCode, determineType, loadResult,
+  encodeProfiles, decodeProfiles, renderMultiAxisSliders,
+  drawMultiDiamond, drawMultiAxesPlot, preloadIcons
+} from './shared.js';
 
-const PROFILE_COLORS = ['#ffffff', '#9966ff', '#ff6b9d', '#4ecdc4', '#ffe66d', '#ff8a5c', '#a8e6cf', '#ff4757'];
-let profileEntries = [{ name: '', code: '' }, { name: '', code: '' }];
+const PROFILE_COLORS = ['#ffffff','#9966ff','#ff6b9d','#4ecdc4','#ffe66d','#ff8a5c','#a8e6cf','#ff4757'];
+let profileInputs = [{ name: '', code: '' }, { name: '', code: '' }];
+let iconImages = {};
 
-function init() {
+async function init() {
+  await initI18n();
+  iconImages = await preloadIcons(TYPE_ICONS);
+  onLocaleChange(() => renderPage());
+
+  // Check URL params
   const params = new URLSearchParams(window.location.search);
-
-  // Support new multi-profile format (?p=...) and legacy (?a=...&b=...)
   const pParam = params.get('p');
   const aParam = params.get('a');
   const bParam = params.get('b');
 
   if (pParam) {
     const decoded = decodeProfiles(pParam);
-    if (decoded.length > 0) {
-      profileEntries = decoded.map(d => ({ name: d.name, code: encodeResult(d.scores) }));
-      if (profileEntries.length < 2) profileEntries.push({ name: '', code: '' });
+    if (decoded.length >= 2) {
+      profileInputs = decoded;
+      renderPage();
+      runComparison();
+      return;
     }
-  } else if (aParam) {
-    profileEntries[0].code = aParam;
-    if (bParam) profileEntries[1].code = bParam;
-  }
-
-  renderInputUI();
-
-  // Auto-compare if we have at least 2 valid entries
-  const valid = profileEntries.filter(p => decodeResult(p.code));
-  if (valid.length >= 2) runComparison();
-}
-
-function renderInputUI() {
-  const container = document.getElementById('profiles-input');
-  container.innerHTML = `
-    <div class="profiles-list" id="profiles-list">
-      ${profileEntries.map((p, i) => `
-        <div class="profile-entry" data-idx="${i}">
-          <div class="profile-color-dot" style="background: ${PROFILE_COLORS[i % PROFILE_COLORS.length]};"></div>
-          <input type="text" class="profile-name" placeholder="Name (optional)" value="${esc(p.name)}" data-idx="${i}">
-          <input type="text" class="profile-code" placeholder="Paste result code..." value="${esc(p.code)}" data-idx="${i}">
-          ${i >= 2 ? `<button class="remove-btn" data-idx="${i}">×</button>` : '<div style="width:32px;"></div>'}
-        </div>
-      `).join('')}
-    </div>
-    <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-top: 0.5rem;">
-      <button class="btn btn-ghost" id="add-profile-btn" style="font-size: 0.85rem;">+ Add Another Profile</button>
-      <button class="btn btn-ghost" id="load-mine-btn" style="font-size: 0.85rem;">Load My Saved Result</button>
-    </div>
-    <div class="compare-actions">
-      <button class="btn btn-primary" id="compare-btn">Compare →</button>
-    </div>
-  `;
-
-  // Bind events
-  container.querySelectorAll('.profile-name').forEach(input => {
-    input.addEventListener('input', () => { profileEntries[+input.dataset.idx].name = input.value; });
-  });
-  container.querySelectorAll('.profile-code').forEach(input => {
-    input.addEventListener('input', () => { profileEntries[+input.dataset.idx].code = input.value.trim(); });
-  });
-  container.querySelectorAll('.remove-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      profileEntries.splice(+btn.dataset.idx, 1);
-      renderInputUI();
-    });
-  });
-  document.getElementById('add-profile-btn').addEventListener('click', () => {
-    profileEntries.push({ name: '', code: '' });
-    renderInputUI();
-  });
-  document.getElementById('load-mine-btn').addEventListener('click', () => {
-    const saved = loadResult();
-    if (saved) {
-      const firstEmpty = profileEntries.findIndex(p => !p.code);
-      const idx = firstEmpty >= 0 ? firstEmpty : 0;
-      profileEntries[idx].code = encodeResult(saved.scores);
-      if (!profileEntries[idx].name) profileEntries[idx].name = 'Me';
-      renderInputUI();
-    } else {
-      alert('No saved result found. Take the test first!');
-    }
-  });
-  document.getElementById('compare-btn').addEventListener('click', runComparison);
-}
-
-function esc(s) { return s.replace(/"/g, '&quot;'); }
-
-function runComparison() {
-  const profiles = profileEntries
-    .map(p => ({ name: p.name, scores: decodeResult(p.code) }))
-    .filter(p => p.scores);
-
-  if (profiles.length < 2) {
-    alert('Need at least 2 valid result codes to compare.');
+  } else if (aParam && bParam) {
+    profileInputs = [{ name: '', code: aParam }, { name: '', code: bParam }];
+    renderPage();
+    runComparison();
     return;
   }
 
-  // Update URL with shareable encoded profiles
-  const url = new URL(window.location);
-  url.search = '';
-  url.searchParams.set('p', encodeProfiles(profiles));
-  history.replaceState(null, '', url);
-
-  renderComparison(profiles);
+  renderPage();
 }
 
-function renderComparison(profiles) {
-  const container = document.getElementById('compare-result');
-  container.classList.add('active');
+function renderPage() {
+  renderLayout('compare');
+  const content = document.getElementById('content');
+  if (!content) return;
 
-  // Profile cards
-  const profileCards = profiles.map((p, i) => {
-    const type = determineType(p.scores);
-    const pers = getPersonality(type);
-    const col = PROFILE_COLORS[i % PROFILE_COLORS.length];
-    return `<div class="compare-profile-card">
-      <div class="profile-dot" style="background: ${col};"></div>
-      ${getTypeIcon(pers.id, 40, pers.color)}
-      <div class="name" style="color: ${pers.color}; font-size: 1rem; font-weight: 700; margin: 0.5rem 0 0.25rem;">${p.name || 'Person ' + (i + 1)}</div>
-      <span class="type-label" style="background: ${pers.color}22; color: ${pers.color}; border: 1px solid ${pers.color}44; display: inline-block; padding: 0.15rem 0.6rem; border-radius: 2rem; font-size: 0.75rem; font-weight: 700;">${pers.id} — ${pers.name}</span>
-    </div>`;
-  }).join('');
-
-  // Score comparison bars
-  const scoreBars = ['D', 'I', 'S', 'C'].map(dim => {
-    const values = profiles.map((p, i) => {
-      const col = PROFILE_COLORS[i % PROFILE_COLORS.length];
-      return `<div style="position:absolute;height:100%;width:${p.scores[dim]}%;background:${col};border-radius:10px;opacity:0.5;"></div>`;
-    }).join('');
-    const labels = profiles.map((p, i) => `${p.scores[dim]}%`).join(' / ');
-    return `<div style="margin-bottom: 0.75rem;">
-      <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
-        <span style="font-weight:700;color:${DISC_COLORS[dim]};font-size:0.85rem;">${dim}</span>
-        <span style="font-size:0.8rem;color:var(--text-secondary);">${labels}</span>
-      </div>
-      <div style="position:relative;height:20px;background:rgba(255,255,255,0.05);border-radius:10px;overflow:hidden;">${values}</div>
-    </div>`;
-  }).join('');
-
-  // Legend
-  const legend = profiles.map((p, i) => {
-    const col = PROFILE_COLORS[i % PROFILE_COLORS.length];
-    return `<div class="legend-item"><div class="legend-dot" style="background:${col};"></div>${p.name || 'Person ' + (i + 1)}</div>`;
-  }).join('');
-
-  // Share URL
-  const shareUrl = window.location.href;
-
-  container.innerHTML = `
-    <div class="compare-profiles-flex">${profileCards}</div>
-
-    <div class="card" style="margin-bottom: 1.5rem;">
-      <h3 style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); margin-bottom: 1rem;">Score Comparison</h3>
-      ${scoreBars}
-      <div class="legend">${legend}</div>
+  content.innerHTML = `
+    <div class="compare-header">
+      <h1>${t('compare_title')}</h1>
+      <p>${t('compare_subtitle')}</p>
     </div>
-
-    <div class="card" style="margin-bottom: 1.5rem;">
-      <h3 style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); margin-bottom: 1.25rem;">Behavioral Dimensions</h3>
-      <div id="compare-axis-sliders"></div>
-      <div class="legend" style="margin-top: 0.5rem;">${legend}</div>
+    <div id="profiles-input" class="profiles-input"></div>
+    <div class="compare-actions">
+      <button class="btn btn-secondary" id="add-profile">${t('compare_add')}</button>
+      <button class="btn btn-secondary" id="load-saved">${t('compare_load')}</button>
+      <button class="btn btn-primary" id="compare-btn">${t('compare_btn')}</button>
     </div>
+    <div id="compare-results"></div>`;
 
-    <div class="charts-grid">
-      <div class="card chart-card">
-        <h3>Profile Overlay</h3>
-        <canvas id="compare-diamond" width="300" height="300" style="max-width: 300px;"></canvas>
-        <div class="legend" style="margin-top: 0.75rem;">${legend}</div>
-      </div>
-      <div class="card chart-card">
-        <h3>Quadrant Plot</h3>
-        <canvas id="compare-axes" width="300" height="300" style="max-width: 300px;"></canvas>
-        <div class="legend" style="margin-top: 0.75rem;">${legend}</div>
-      </div>
-    </div>
+  renderProfileInputs();
 
-    <div class="card" style="margin-top: 1.5rem;">
-      <h3 style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); margin-bottom: 1rem;">Compatibility Insights</h3>
-      <div id="insights"></div>
-    </div>
-
-    <div class="card" style="margin-top: 1.5rem; text-align: center;">
-      <h3 style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); margin-bottom: 0.75rem;">Share This Comparison</h3>
-      <div class="share-code">
-        <input type="text" id="share-compare-link" value="${shareUrl}" readonly>
-        <button class="btn btn-secondary" id="copy-compare-btn">Copy</button>
-      </div>
-    </div>
-  `;
-
-  // Axis sliders
-  renderMultiAxisSliders(profiles, 'compare-axis-sliders');
-
-  // Charts: use first two profiles for overlay (canvas API supports 2)
-  requestAnimationFrame(() => {
-    function initCanvas(id, size) {
-      const dpr = window.devicePixelRatio || 1;
-      const c = document.getElementById(id);
-      c.width = size * dpr;
-      c.height = size * dpr;
-      c.getContext('2d').scale(dpr, dpr);
-      return c;
-    }
-    drawDiamondChart(initCanvas('compare-diamond', 300), profiles[0].scores, profiles[1].scores);
-    drawAxesPlot(initCanvas('compare-axes', 300), profiles[0].scores, profiles[1].scores);
+  document.getElementById('add-profile').addEventListener('click', () => {
+    profileInputs.push({ name: '', code: '' });
+    renderProfileInputs();
   });
 
+  document.getElementById('load-saved').addEventListener('click', () => {
+    const scores = loadResult();
+    if (scores) {
+      const code = encodeResult(scores);
+      if (profileInputs.length > 0 && !profileInputs[0].code) {
+        profileInputs[0].code = code;
+      } else {
+        profileInputs.push({ name: '', code });
+      }
+      renderProfileInputs();
+    } else {
+      alert(t('compare_no_saved'));
+    }
+  });
+
+  document.getElementById('compare-btn').addEventListener('click', runComparison);
+}
+
+function renderProfileInputs() {
+  const container = document.getElementById('profiles-input');
+  if (!container) return;
+  container.innerHTML = profileInputs.map((p, i) => `
+    <div class="profile-input-row">
+      <span class="profile-color" style="background:${PROFILE_COLORS[i % PROFILE_COLORS.length]}"></span>
+      <input type="text" class="input profile-name" placeholder="${t('compare_name')}" value="${p.name || ''}" data-idx="${i}" data-field="name">
+      <input type="text" class="input profile-code" placeholder="${t('compare_code')}" value="${p.code || ''}" data-idx="${i}" data-field="code">
+      ${profileInputs.length > 2 ? `<button class="btn btn-sm btn-danger remove-profile" data-idx="${i}">✕</button>` : ''}
+    </div>`).join('');
+
+  container.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('input', () => {
+      const idx = parseInt(inp.dataset.idx);
+      profileInputs[idx][inp.dataset.field] = inp.value;
+    });
+  });
+  container.querySelectorAll('.remove-profile').forEach(btn => {
+    btn.addEventListener('click', () => {
+      profileInputs.splice(parseInt(btn.dataset.idx), 1);
+      renderProfileInputs();
+    });
+  });
+}
+
+function runComparison() {
+  // Save current input values
+  document.querySelectorAll('#profiles-input input').forEach(inp => {
+    const idx = parseInt(inp.dataset.idx);
+    if (profileInputs[idx]) profileInputs[idx][inp.dataset.field] = inp.value;
+  });
+
+  const profiles = profileInputs
+    .map((p, i) => {
+      const rawCode = extractCode(p.code);
+      const scores = decodeResult(rawCode);
+      if (!scores) return null;
+      return {
+        name: p.name || `Profile ${i + 1}`,
+        code: rawCode,
+        scores,
+        type: determineType(scores),
+        color: PROFILE_COLORS[i % PROFILE_COLORS.length]
+      };
+    })
+    .filter(Boolean);
+
+  if (profiles.length < 2) {
+    alert(t('compare_need_two'));
+    return;
+  }
+
+  // Update URL
+  const encoded = encodeProfiles(profileInputs.filter(p => extractCode(p.code) && decodeResult(extractCode(p.code)))
+    .map(p => ({ name: p.name, code: extractCode(p.code) })));
+  const newUrl = window.location.pathname + '?p=' + encoded;
+  history.replaceState(null, '', newUrl);
+
+  renderResults(profiles);
+}
+
+function renderResults(profiles) {
+  const container = document.getElementById('compare-results');
+  if (!container) return;
+
+  // Legend
+  const legend = profiles.map(p => {
+    const personality = getPersonality(p.type);
+    return `<div class="compare-legend-item">
+      <span class="legend-dot" style="background:${p.color}"></span>
+      <strong>${p.name}</strong> — <span style="color:${personality.color}">${p.type}</span> ${personality.name || ''}
+    </div>`;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="card"><div class="compare-legend">${legend}</div></div>
+
+    <div class="card">
+      <h3>${t('compare_scores')}</h3>
+      <div id="compare-bars"></div>
+    </div>
+
+    <div class="card">
+      <h3>${t('compare_dimensions')}</h3>
+      <div id="compare-axes"></div>
+    </div>
+
+    <div class="results-grid">
+      <div class="card">
+        <h3>${t('compare_overlay')}</h3>
+        <canvas id="compare-diamond"></canvas>
+      </div>
+      <div class="card">
+        <h3>${t('compare_quadrant')}</h3>
+        <canvas id="compare-quadrant"></canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>${t('compare_insights')}</h3>
+      <div id="compare-insights"></div>
+    </div>
+
+    <div class="card share-section">
+      <h3>${t('compare_share')}</h3>
+      <div class="share-code">
+        <code id="compare-url" style="font-size:0.75rem;word-break:break-all">${window.location.href}</code>
+        <button class="btn btn-secondary btn-sm" id="copy-compare">${t('btn_copy_link')}</button>
+      </div>
+    </div>`;
+
+  // Score bars
+  const barsEl = document.getElementById('compare-bars');
+  for (const dim of ['D', 'I', 'S', 'C']) {
+    const bars = profiles.map(p =>
+      `<div class="compare-bar-row">
+        <span class="compare-bar-name" style="color:${p.color}">${p.name}</span>
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:${p.scores[dim]}%;background:${p.color}">${p.scores[dim]}%</div></div>
+      </div>`
+    ).join('');
+    barsEl.innerHTML += `<div class="compare-dim-group">
+      <h4 style="color:${DISC_COLORS[dim]}">${t('dim.' + dim)}</h4>
+      ${bars}
+    </div>`;
+  }
+
+  // Axes
+  renderMultiAxisSliders(document.getElementById('compare-axes'), profiles);
+
+  // Charts
+  drawMultiDiamond(document.getElementById('compare-diamond'), profiles);
+  drawMultiAxesPlot(document.getElementById('compare-quadrant'), profiles);
+
+  // Insights (pairwise for first two profiles)
   renderInsights(profiles);
 
-  document.getElementById('copy-compare-btn').addEventListener('click', () => {
-    const input = document.getElementById('share-compare-link');
-    navigator.clipboard.writeText(input.value).then(() => {
-      const btn = document.getElementById('copy-compare-btn');
-      btn.textContent = 'Copied!';
-      setTimeout(() => btn.textContent = 'Copy', 2000);
+  // Copy
+  document.getElementById('copy-compare').addEventListener('click', () => {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      const btn = document.getElementById('copy-compare');
+      const orig = btn.textContent;
+      btn.textContent = t('btn_copied');
+      setTimeout(() => { btn.textContent = orig; }, 1500);
     });
   });
 }
 
 function renderInsights(profiles) {
-  const insights = [];
+  const container = document.getElementById('compare-insights');
+  if (profiles.length < 2) return;
 
-  // Pairwise similarity for first two
-  const [a, b] = profiles;
-  const totalDiff = ['D', 'I', 'S', 'C'].reduce((sum, dim) =>
-    sum + Math.abs(a.scores[dim] - b.scores[dim]), 0);
-  const similarity = Math.round(Math.max(0, 100 - totalDiff / 4));
+  const a = profiles[0].scores, b = profiles[1].scores;
+  const dims = ['D', 'I', 'S', 'C'];
+  const diffs = dims.map(d => Math.abs(a[d] - b[d]));
+  const avgDiff = diffs.reduce((s, d) => s + d, 0) / 4;
+  const similarity = Math.max(0, Math.round(100 - avgDiff));
 
-  insights.push(`<div style="text-align:center;margin-bottom:1.5rem;">
-    <div style="font-size:2.5rem;font-weight:800;background:linear-gradient(135deg,var(--color-d),var(--color-i));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">${similarity}%</div>
-    <div style="color:var(--text-secondary);font-size:0.9rem;">Overall Similarity${profiles.length > 2 ? ` (${a.name || 'Person 1'} & ${b.name || 'Person 2'})` : ''}</div>
-  </div>`);
+  let overallMsg;
+  if (similarity > 75) overallMsg = t('insight_high');
+  else if (similarity > 45) overallMsg = t('insight_mid');
+  else overallMsg = t('insight_low');
 
-  const dims = { D: 'Dominance', I: 'Influence', S: 'Steadiness', C: 'Conscientiousness' };
-  for (const [dim, label] of Object.entries(dims)) {
-    const diff = Math.abs(a.scores[dim] - b.scores[dim]);
-    let note;
-    if (diff <= 10) note = `<span style="color:var(--color-s);">Very aligned</span> — similar ${label.toLowerCase()} style.`;
-    else if (diff <= 25) note = `<span style="color:var(--color-i);">Moderate difference</span> — complementary ${label.toLowerCase()} styles.`;
-    else note = `<span style="color:var(--color-d);">Significant gap</span> — potential tension or growth area.`;
-    insights.push(`<div style="margin-bottom:0.75rem;"><strong style="color:${DISC_COLORS[dim]};">${label}:</strong> ${note}</div>`);
-  }
+  const dimInsights = dims.map((d, i) => {
+    const diff = diffs[i];
+    const dimName = t('dim.' + d);
+    let level, desc;
+    if (diff < 15) {
+      level = t('insight_aligned');
+      desc = t('insight_aligned_desc').replace('{dim}', dimName);
+    } else if (diff < 30) {
+      level = t('insight_moderate');
+      desc = t('insight_moderate_desc').replace('{dim}', dimName);
+    } else {
+      level = t('insight_significant');
+      desc = t('insight_significant_desc').replace('{dim}', dimName);
+    }
+    return `<div class="insight-item">
+      <span class="insight-dim" style="color:${DISC_COLORS[d]}">${dimName}</span>
+      <span class="insight-level">${level}</span>
+      <span class="insight-desc">${desc}</span>
+    </div>`;
+  }).join('');
 
-  let dynamic;
-  if (similarity >= 75) dynamic = "Very similar styles. Collaboration is natural, but watch for shared blind spots.";
-  else if (similarity >= 50) dynamic = "A healthy balance of similarity and difference. You can complement each other's strengths.";
-  else dynamic = "Quite different styles — diverse perspectives but requires intentional communication.";
-  insights.push(`<div style="margin-top:1rem;padding:1rem;background:rgba(255,255,255,0.03);border-radius:var(--radius-sm);color:var(--text-secondary);font-style:italic;">${dynamic}</div>`);
-
-  document.getElementById('insights').innerHTML = insights.join('');
+  container.innerHTML = `
+    <div class="similarity-bar">
+      <span>${t('compare_similarity')}: <strong>${similarity}%</strong></span>
+      <div class="score-bar-track"><div class="score-bar-fill" style="width:${similarity}%;background:linear-gradient(90deg,${DISC_COLORS.D},${DISC_COLORS.I})">${similarity}%</div></div>
+    </div>
+    <p style="margin:1rem 0;opacity:0.8">${overallMsg}</p>
+    <div class="insights-grid">${dimInsights}</div>`;
 }
 
-document.addEventListener('DOMContentLoaded', init);
+init();

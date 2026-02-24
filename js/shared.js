@@ -1,466 +1,462 @@
-import { PERSONALITIES } from './personalities.js';
+import { t } from './i18n.js';
+import { DISC_COLORS, PERSONALITY_DATA, getPersonality } from './personalities.js';
 
-const ADJACENT = {
-  D: ['I', 'C'],
-  I: ['D', 'S'],
-  S: ['I', 'C'],
-  C: ['S', 'D']
-};
+const WHEEL_TYPES = ['D','Di','DI','Id','I','Is','IS','Si','S','Sc','SC','Cs','C','Cd','CD','Dc'];
+const ADJACENT = { D: ['I','C'], I: ['D','S'], S: ['I','C'], C: ['S','D'] };
 
-const BLEND_ORDER = { 'D_I': 'DI', 'I_S': 'IS', 'S_C': 'SC', 'C_D': 'CD' };
-
-function canonicalBlend(a, b) {
-  return BLEND_ORDER[`${a}_${b}`] || BLEND_ORDER[`${b}_${a}`] || (a + b);
-}
+// --- Scoring ---
 
 export function calculateScores(answers) {
   const raw = { D: 0, I: 0, S: 0, C: 0 };
-  const count = { D: 0, I: 0, S: 0, C: 0 };
-
-  for (const [qId, value] of Object.entries(answers)) {
-    const dim = value.dimension;
-    raw[dim] += value.score;
-    count[dim]++;
+  const counts = { D: 0, I: 0, S: 0, C: 0 };
+  for (const [id, value] of Object.entries(answers)) {
+    const idx = parseInt(id) - 1;
+    const dims = ['D','I','S','C'];
+    const dim = dims[idx % 4];
+    raw[dim] += value;
+    counts[dim]++;
   }
-
   const scores = {};
-  for (const dim of ['D', 'I', 'S', 'C']) {
-    const c = count[dim] || 7;
-    scores[dim] = Math.round(((raw[dim] - c) / (c * 4)) * 100);
+  for (const dim of ['D','I','S','C']) {
+    scores[dim] = counts[dim] > 0 ? Math.round((raw[dim] / (counts[dim] * 5)) * 100) : 0;
   }
   return scores;
 }
 
 export function determineType(scores) {
   const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
-  const [first, second] = sorted;
-  const diff = first[1] - second[1];
-  const isAdj = ADJACENT[first[0]].includes(second[0]);
-
-  if (!isAdj || diff > 25) {
-    return first[0];
-  } else if (diff <= 8) {
-    return canonicalBlend(first[0], second[0]);
-  } else {
-    return first[0] + second[0].toLowerCase();
-  }
+  const [first, fScore] = sorted[0];
+  const [second, sScore] = sorted[1];
+  const diff = fScore - sScore;
+  const adjacent = ADJACENT[first]?.includes(second);
+  if (!adjacent || diff > 25) return first;
+  if (diff <= 8) return first + second;
+  return first + second.toLowerCase();
 }
+
+// --- Encoding ---
 
 export function encodeResult(scores) {
   const str = `${scores.D},${scores.I},${scores.S},${scores.C}`;
   return btoa(str).replace(/=+$/, '');
 }
 
-export function decodeResult(encoded) {
+export function decodeResult(code) {
   try {
-    const pad = encoded + '==='.slice(0, (4 - encoded.length % 4) % 4);
-    const str = atob(pad);
-    const parts = str.split(',').map(Number);
-    if (parts.length !== 4 || parts.some(isNaN)) return null;
-    return { D: parts[0], I: parts[1], S: parts[2], C: parts[3] };
+    const padded = code + '==='.slice(0, (4 - code.length % 4) % 4);
+    const parts = atob(padded).split(',').map(Number);
+    if (parts.length === 4 && parts.every(n => !isNaN(n) && n >= 0 && n <= 100)) {
+      return { D: parts[0], I: parts[1], S: parts[2], C: parts[3] };
+    }
+  } catch {}
+  return null;
+}
+
+export function extractCode(input) {
+  input = (input || '').trim();
+  try {
+    const url = new URL(input);
+    return url.searchParams.get('r') || url.searchParams.get('p') || input;
   } catch {
-    return null;
+    return input;
   }
 }
 
-export function saveResult(scores, type) {
-  const data = { scores, type, date: new Date().toISOString() };
-  localStorage.setItem('disc_result', JSON.stringify(data));
-}
-
-export function loadResult() {
-  try {
-    const raw = localStorage.getItem('disc_result');
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
-
-export function getShareUrl(scores) {
-  const code = encodeResult(scores);
-  const base = window.location.origin + window.location.pathname.replace(/[^/]*$/, '');
-  return `${base}results.html?r=${code}`;
-}
-
-// Behavioral axes: each returns -100..+100
-export const AXES = [
-  { id: 'assertive',  left: 'Accommodating', right: 'Assertive',    calc: s => ((s.D + s.I) - (s.S + s.C)) / 2, colorL: '#2A9D8F', colorR: '#E63946' },
-  { id: 'expressive', left: 'Reserved',      right: 'Expressive',   calc: s => ((s.I + s.S) - (s.D + s.C)) / 2, colorL: '#457B9D', colorR: '#F4A261' },
-  { id: 'pace',       left: 'Deliberate',    right: 'Fast-Paced',   calc: s => ((s.D + s.I) - (s.S + s.C)) / 2, colorL: '#2A9D8F', colorR: '#E63946' },
-  { id: 'focus',      left: 'Task-Focused',  right: 'People-Focused', calc: s => ((s.I + s.S) - (s.D + s.C)) / 2, colorL: '#457B9D', colorR: '#F4A261' },
-  { id: 'risk',       left: 'Cautious',      right: 'Risk-Taking',  calc: s => ((s.D * 1.5 + s.I * 0.5) - (s.C * 1.5 + s.S * 0.5)) / 2, colorL: '#457B9D', colorR: '#E63946' },
-  { id: 'structure',  left: 'Flexible',      right: 'Structured',   calc: s => ((s.C * 1.5 + s.S * 0.5) - (s.I * 1.5 + s.D * 0.5)) / 2, colorL: '#F4A261', colorR: '#457B9D' },
-];
-
-export function computeAxes(scores) {
-  return AXES.map(axis => ({
-    ...axis,
-    value: Math.round(Math.max(-100, Math.min(100, axis.calc(scores))))
-  }));
-}
-
-export function renderAxisSliders(scores, containerId) {
-  const axes = computeAxes(scores);
-  const el = document.getElementById(containerId);
-  if (!el) return;
-  el.innerHTML = axes.map(a => {
-    const pct = (a.value + 100) / 2; // 0..100
-    return `
-      <div class="axis-slider-row">
-        <span class="axis-label axis-label-left">${a.left}</span>
-        <div class="axis-track">
-          <div class="axis-track-left" style="background: ${a.colorL}20;"></div>
-          <div class="axis-track-right" style="background: ${a.colorR}20;"></div>
-          <div class="axis-center-line"></div>
-          <div class="axis-marker" style="left: ${pct}%; background: ${pct > 50 ? a.colorR : a.colorL}; box-shadow: 0 0 8px ${pct > 50 ? a.colorR : a.colorL}88;"></div>
-        </div>
-        <span class="axis-label axis-label-right">${a.right}</span>
-      </div>`;
-  }).join('');
-}
-
-export function renderMultiAxisSliders(profiles, containerId) {
-  const el = document.getElementById(containerId);
-  if (!el) return;
-  const PROFILE_COLORS = ['#ffffff', '#9966ff', '#ff6b9d', '#4ecdc4', '#ffe66d', '#ff8a5c', '#a8e6cf', '#ff4757'];
-  el.innerHTML = AXES.map(axis => {
-    const markers = profiles.map((p, i) => {
-      const val = Math.round(Math.max(-100, Math.min(100, axis.calc(p.scores))));
-      const pct = (val + 100) / 2;
-      const col = PROFILE_COLORS[i % PROFILE_COLORS.length];
-      return `<div class="axis-marker" style="left:${pct}%;background:${col};box-shadow:0 0 8px ${col}88;z-index:${10-i};" title="${p.name || 'Person '+(i+1)}: ${val > 0 ? '+' : ''}${val}"></div>`;
-    }).join('');
-    return `
-      <div class="axis-slider-row">
-        <span class="axis-label axis-label-left">${axis.left}</span>
-        <div class="axis-track">
-          <div class="axis-track-left" style="background: ${axis.colorL}20;"></div>
-          <div class="axis-track-right" style="background: ${axis.colorR}20;"></div>
-          <div class="axis-center-line"></div>
-          ${markers}
-        </div>
-        <span class="axis-label axis-label-right">${axis.right}</span>
-      </div>`;
-  }).join('');
-}
-
-// Multi-profile URL encoding: name:code|name:code|...  base64'd
 export function encodeProfiles(profiles) {
-  const str = profiles.map(p => `${p.name || ''}:${encodeResult(p.scores)}`).join('|');
-  return btoa(str).replace(/=+$/, '');
+  const parts = profiles.map(p => (p.name ? p.name + ':' : '') + p.code);
+  return btoa(parts.join('|')).replace(/=+$/, '');
 }
 
 export function decodeProfiles(encoded) {
   try {
-    const pad = encoded + '==='.slice(0, (4 - encoded.length % 4) % 4);
-    const str = atob(pad);
+    const padded = encoded + '==='.slice(0, (4 - encoded.length % 4) % 4);
+    const str = atob(padded);
     return str.split('|').map(part => {
-      const idx = part.indexOf(':');
-      const name = part.slice(0, idx);
-      const code = part.slice(idx + 1);
-      const scores = decodeResult(code);
-      return scores ? { name, scores } : null;
-    }).filter(Boolean);
-  } catch {
-    return [];
-  }
-}
-
-function logicalSize(canvas) {
-  const dpr = window.devicePixelRatio || 1;
-  return { w: canvas.width / dpr, h: canvas.height / dpr };
-}
-
-export function drawDiamondChart(canvas, scores, scores2 = null) {
-  const ctx = canvas.getContext('2d');
-  const { w, h } = logicalSize(canvas);
-  const cx = w / 2;
-  const cy = h / 2;
-  const r = Math.min(w, h) * 0.32;
-
-  ctx.clearRect(0, 0, w, h);
-
-  const axes = [
-    { dim: 'D', label: 'Dominance',   x: cx, y: cy - r, lx: cx,      ly: cy - r - 14 },
-    { dim: 'I', label: 'Influence',    x: cx + r, y: cy, lx: cx + r + 8, ly: cy },
-    { dim: 'S', label: 'Steadiness',   x: cx, y: cy + r, lx: cx,      ly: cy + r + 16 },
-    { dim: 'C', label: 'Conscient.',   x: cx - r, y: cy, lx: cx - r - 8, ly: cy }
-  ];
-
-  // Grid lines
-  for (let level = 0.25; level <= 1; level += 0.25) {
-    ctx.beginPath();
-    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-    ctx.lineWidth = 1;
-    for (let i = 0; i < 4; i++) {
-      const ax = cx + (axes[i].x - cx) * level;
-      const ay = cy + (axes[i].y - cy) * level;
-      if (i === 0) ctx.moveTo(ax, ay); else ctx.lineTo(ax, ay);
-    }
-    ctx.closePath();
-    ctx.stroke();
-  }
-
-  for (const a of axes) {
-    ctx.beginPath();
-    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
-    ctx.lineWidth = 1;
-    ctx.moveTo(cx, cy);
-    ctx.lineTo(a.x, a.y);
-    ctx.stroke();
-  }
-
-  function drawPolygon(sc, colors, alpha, lw) {
-    const pts = axes.map(a => ({
-      x: cx + (a.x - cx) * (sc[a.dim] / 100),
-      y: cy + (a.y - cy) * (sc[a.dim] / 100)
-    }));
-    ctx.beginPath();
-    pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
-    ctx.closePath();
-    ctx.fillStyle = colors.fill;
-    ctx.globalAlpha = alpha;
-    ctx.fill();
-    ctx.globalAlpha = 1;
-    ctx.beginPath();
-    pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
-    ctx.closePath();
-    ctx.strokeStyle = colors.stroke;
-    ctx.lineWidth = lw;
-    ctx.stroke();
-    pts.forEach(p => {
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-      ctx.fillStyle = colors.stroke;
-      ctx.fill();
+      const colonIdx = part.indexOf(':');
+      if (colonIdx > 0 && colonIdx < part.length - 1) {
+        return { name: part.slice(0, colonIdx), code: part.slice(colonIdx + 1) };
+      }
+      return { name: '', code: part };
     });
-  }
+  } catch { return []; }
+}
 
-  const COLORS = { D: '#E63946', I: '#F4A261', S: '#2A9D8F', C: '#457B9D' };
+// --- Storage ---
 
-  if (scores2) drawPolygon(scores2, { fill: 'rgba(153,102,255,0.15)', stroke: '#9966ff' }, 0.3, 2);
-  drawPolygon(scores, { fill: 'rgba(255,255,255,0.08)', stroke: '#ffffff' }, 0.15, 2.5);
+export function saveResult(scores) {
+  localStorage.setItem('disc_scores', JSON.stringify(scores));
+  localStorage.setItem('disc_code', encodeResult(scores));
+}
 
-  ctx.font = '600 11px Inter, system-ui, sans-serif';
-  ctx.textBaseline = 'middle';
-  axes.forEach(a => {
-    ctx.fillStyle = COLORS[a.dim];
-    ctx.textAlign = a.dim === 'C' ? 'right' : a.dim === 'I' ? 'left' : 'center';
-    ctx.fillText(a.label, a.lx, a.ly);
+export function loadResult() {
+  try {
+    return JSON.parse(localStorage.getItem('disc_scores'));
+  } catch { return null; }
+}
+
+// --- Canvas helpers ---
+
+function initCanvas(canvas, size) {
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = size * dpr;
+  canvas.height = size * dpr;
+  canvas.style.width = size + 'px';
+  canvas.style.height = size + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  return { ctx, w: size, h: size };
+}
+
+// --- Axes ---
+
+const AXES = [
+  { id: 'assertive',  leftKey: 'axis.accommodating', rightKey: 'axis.assertive',    colorL: DISC_COLORS.S, colorR: DISC_COLORS.D, calc: s => (s.D * 1.2 + s.I * 0.3) - (s.S * 1.2 + s.C * 0.3) },
+  { id: 'expressive', leftKey: 'axis.reserved',      rightKey: 'axis.expressive',   colorL: DISC_COLORS.C, colorR: DISC_COLORS.I, calc: s => (s.I * 1.3 + s.D * 0.2) - (s.C * 1.3 + s.S * 0.2) },
+  { id: 'pace',       leftKey: 'axis.deliberate',     rightKey: 'axis.fast_paced',   colorL: DISC_COLORS.S, colorR: DISC_COLORS.D, calc: s => (s.D * 1.0 + s.I * 0.5) - (s.S * 1.0 + s.C * 0.5) },
+  { id: 'focus',      leftKey: 'axis.task_focused',   rightKey: 'axis.people_focused',colorL: DISC_COLORS.C, colorR: DISC_COLORS.I, calc: s => (s.I * 1.2 + s.S * 0.3) - (s.C * 1.2 + s.D * 0.3) },
+  { id: 'risk',       leftKey: 'axis.cautious',       rightKey: 'axis.risk_taking',  colorL: DISC_COLORS.C, colorR: DISC_COLORS.D, calc: s => (s.D * 1.5 + s.I * 0.5) - (s.C * 1.5 + s.S * 0.5) },
+  { id: 'structure',  leftKey: 'axis.flexible',       rightKey: 'axis.structured',   colorL: DISC_COLORS.I, colorR: DISC_COLORS.C, calc: s => (s.C * 1.3 + s.S * 0.2) - (s.I * 1.3 + s.D * 0.2) }
+];
+
+export function computeAxes(scores) {
+  return AXES.map(a => {
+    const raw = a.calc(scores);
+    const clamped = Math.max(-100, Math.min(100, raw));
+    return { ...a, value: clamped };
   });
 }
 
-export function drawAxesPlot(canvas, scores, scores2 = null) {
-  const ctx = canvas.getContext('2d');
-  const { w, h } = logicalSize(canvas);
-  const cx = w / 2;
-  const cy = h / 2;
-  const pad = 40;
-
-  ctx.clearRect(0, 0, w, h);
-
-  const qSize = (w - pad * 2) / 2;
-  const quadrants = [
-    { x: pad, y: pad, color: 'rgba(230,57,70,0.06)' },
-    { x: cx, y: pad, color: 'rgba(244,162,97,0.06)' },
-    { x: pad, y: cy, color: 'rgba(69,123,157,0.06)' },
-    { x: cx, y: cy, color: 'rgba(42,157,143,0.06)' }
-  ];
-  quadrants.forEach(q => { ctx.fillStyle = q.color; ctx.fillRect(q.x, q.y, qSize, qSize); });
-
-  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(pad, cy); ctx.lineTo(w - pad, cy);
-  ctx.moveTo(cx, pad); ctx.lineTo(cx, h - pad);
-  ctx.stroke();
-
-  ctx.font = '500 10px Inter, system-ui, sans-serif';
-  ctx.fillStyle = 'rgba(255,255,255,0.5)';
-  ctx.textAlign = 'center';
-  ctx.fillText('Pragmatic', pad + qSize / 2, h - pad + 14);
-  ctx.fillText('Optimistic', cx + qSize / 2, h - pad + 14);
-  ctx.save();
-  ctx.translate(pad - 18, cy - qSize / 2);
-  ctx.rotate(-Math.PI / 2);
-  ctx.fillText('Dominant', 0, 0);
-  ctx.restore();
-  ctx.save();
-  ctx.translate(pad - 18, cy + qSize / 2);
-  ctx.rotate(-Math.PI / 2);
-  ctx.fillText('Supportive', 0, 0);
-  ctx.restore();
-
-  // Quadrant letters
-  ctx.font = '800 18px Inter, system-ui, sans-serif';
-  ctx.globalAlpha = 0.08;
-  const COLORS = { D: '#E63946', I: '#F4A261', S: '#2A9D8F', C: '#457B9D' };
-  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillStyle = COLORS.D; ctx.fillText('D', pad + qSize / 2, pad + qSize / 2);
-  ctx.fillStyle = COLORS.I; ctx.fillText('I', cx + qSize / 2, pad + qSize / 2);
-  ctx.fillStyle = COLORS.C; ctx.fillText('C', pad + qSize / 2, cy + qSize / 2);
-  ctx.fillStyle = COLORS.S; ctx.fillText('S', cx + qSize / 2, cy + qSize / 2);
-  ctx.globalAlpha = 1;
-
-  function plotPoint(sc, color, size) {
-    const xVal = ((sc.I + sc.S) - (sc.D + sc.C)) / 200;
-    const yVal = ((sc.D + sc.I) - (sc.S + sc.C)) / 200;
-    const px = cx + xVal * (w / 2 - pad);
-    const py = cy - yVal * (h / 2 - pad);
-    ctx.beginPath();
-    ctx.arc(px, py, size, 0, Math.PI * 2);
-    ctx.fillStyle = color;
-    ctx.shadowColor = color;
-    ctx.shadowBlur = 10;
-    ctx.fill();
-    ctx.shadowBlur = 0;
-    ctx.beginPath();
-    ctx.arc(px, py, size + 2, 0, Math.PI * 2);
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 1.5;
-    ctx.globalAlpha = 0.4;
-    ctx.stroke();
-    ctx.globalAlpha = 1;
-  }
-
-  if (scores2) plotPoint(scores2, '#9966ff', 6);
-  plotPoint(scores, '#ffffff', 7);
+export function renderAxisSliders(container, scores) {
+  const axes = computeAxes(scores);
+  container.innerHTML = axes.map(a => {
+    const pct = ((a.value + 100) / 200) * 100;
+    return `<div class="axis-slider">
+      <div class="axis-labels"><span style="color:${a.colorL}">${t(a.leftKey)}</span><span style="color:${a.colorR}">${t(a.rightKey)}</span></div>
+      <div class="axis-track"><div class="axis-thumb" style="left:${pct}%"></div></div>
+    </div>`;
+  }).join('');
 }
 
-// DISC wheel with all 16 types arranged in a circle
-const WHEEL_TYPES = [
-  'D', 'Di', 'DI', 'Id', 'I', 'Is', 'IS', 'Si',
-  'S', 'Sc', 'SC', 'Cs', 'C', 'Cd', 'CD', 'Dc'
-];
+export function renderMultiAxisSliders(container, profiles) {
+  const colors = ['#ffffff','#9966ff','#ff6b9d','#4ecdc4','#ffe66d','#ff8a5c','#a8e6cf','#ff4757'];
+  const allAxes = profiles.map(p => computeAxes(p.scores));
+  container.innerHTML = AXES.map((a, ai) => {
+    const thumbs = profiles.map((p, pi) => {
+      const pct = ((allAxes[pi][ai].value + 100) / 200) * 100;
+      return `<div class="axis-thumb" style="left:${pct}%;background:${colors[pi % colors.length]};border-color:${colors[pi % colors.length]}"></div>`;
+    }).join('');
+    return `<div class="axis-slider">
+      <div class="axis-labels"><span style="color:${a.colorL}">${t(a.leftKey)}</span><span style="color:${a.colorR}">${t(a.rightKey)}</span></div>
+      <div class="axis-track">${thumbs}</div>
+    </div>`;
+  }).join('');
+}
 
-export function drawDiscWheel(canvas, activeType, scores) {
-  const ctx = canvas.getContext('2d');
-  const { w, h } = logicalSize(canvas);
-  const cx = w / 2;
-  const cy = h / 2;
-  const outerR = Math.min(w, h) * 0.42;
-  const innerR = outerR * 0.45;
-  const midR = (outerR + innerR) / 2;
-  const n = WHEEL_TYPES.length;
-  const slice = (Math.PI * 2) / n;
-  const startOffset = -Math.PI / 2; // D at top
+// --- Diamond Chart ---
 
+export function drawDiamondChart(canvas, scores, scores2 = null, labels = {}) {
+  const { ctx, w, h } = initCanvas(canvas, 380);
+  const cx = w / 2, cy = h / 2, r = 140;
   ctx.clearRect(0, 0, w, h);
 
-  const COLORS = { D: '#E63946', I: '#F4A261', S: '#2A9D8F', C: '#457B9D' };
-
-  function typeColor(id) {
-    const p = PERSONALITIES[id];
-    return p ? p.color : '#888';
+  // Grid
+  for (let i = 1; i <= 4; i++) {
+    const gr = (r / 4) * i;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - gr); ctx.lineTo(cx + gr, cy);
+    ctx.lineTo(cx, cy + gr); ctx.lineTo(cx - gr, cy); ctx.closePath();
+    ctx.strokeStyle = `rgba(255,255,255,${i === 4 ? 0.3 : 0.1})`;
+    ctx.stroke();
   }
 
+  // Labels
+  ctx.font = '600 12px Inter, system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = DISC_COLORS.D; ctx.fillText(t('chart.dominance'), cx, cy - r - 10);
+  ctx.fillStyle = DISC_COLORS.I; ctx.fillText(t('chart.influence'), cx + r + 10, cy + 4);
+  ctx.fillStyle = DISC_COLORS.S; ctx.fillText(t('chart.steadiness'), cx, cy + r + 16);
+  ctx.fillStyle = DISC_COLORS.C; ctx.fillText(t('chart.conscientiousness'), cx - r - 10, cy + 4);
+
+  function plotShape(sc, color, alpha) {
+    const pts = [
+      [cx, cy - (sc.D / 100) * r],
+      [cx + (sc.I / 100) * r, cy],
+      [cx, cy + (sc.S / 100) * r],
+      [cx - (sc.C / 100) * r, cy]
+    ];
+    ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
+    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+    ctx.closePath();
+    ctx.fillStyle = color.replace(')', `,${alpha})`).replace('rgb', 'rgba');
+    ctx.globalAlpha = alpha; ctx.fillStyle = color; ctx.fill();
+    ctx.globalAlpha = 1; ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
+    return pts;
+  }
+
+  function plotDot(sc, color, size, label) {
+    const pts = [
+      [cx, cy - (sc.D / 100) * r],
+      [cx + (sc.I / 100) * r, cy],
+      [cx, cy + (sc.S / 100) * r],
+      [cx - (sc.C / 100) * r, cy]
+    ];
+    const px = pts.reduce((a, p) => a + p[0], 0) / 4;
+    const py = pts.reduce((a, p) => a + p[1], 0) / 4;
+    ctx.beginPath(); ctx.arc(px, py, size, 0, Math.PI * 2);
+    ctx.fillStyle = color; ctx.fill();
+    if (label) {
+      ctx.font = '600 10px Inter, system-ui, sans-serif';
+      ctx.fillStyle = color; ctx.textAlign = 'left';
+      ctx.fillText(label, px + size + 4, py - 2);
+    }
+  }
+
+  if (scores2) { plotShape(scores2, '#9966ff', 0.15); plotDot(scores2, '#9966ff', 5, labels.b); }
+  plotShape(scores, '#ffffff', 0.2); plotDot(scores, '#ffffff', 6, labels.a);
+}
+
+export function drawMultiDiamond(canvas, profiles) {
+  const colors = ['#ffffff','#9966ff','#ff6b9d','#4ecdc4','#ffe66d','#ff8a5c','#a8e6cf','#ff4757'];
+  const { ctx, w, h } = initCanvas(canvas, 380);
+  const cx = w / 2, cy = h / 2, r = 140;
+  ctx.clearRect(0, 0, w, h);
+
+  for (let i = 1; i <= 4; i++) {
+    const gr = (r / 4) * i;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - gr); ctx.lineTo(cx + gr, cy);
+    ctx.lineTo(cx, cy + gr); ctx.lineTo(cx - gr, cy); ctx.closePath();
+    ctx.strokeStyle = `rgba(255,255,255,${i === 4 ? 0.3 : 0.1})`;
+    ctx.stroke();
+  }
+
+  ctx.font = '600 12px Inter, system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = DISC_COLORS.D; ctx.fillText(t('chart.dominance'), cx, cy - r - 10);
+  ctx.fillStyle = DISC_COLORS.I; ctx.fillText(t('chart.influence'), cx + r + 10, cy + 4);
+  ctx.fillStyle = DISC_COLORS.S; ctx.fillText(t('chart.steadiness'), cx, cy + r + 16);
+  ctx.fillStyle = DISC_COLORS.C; ctx.fillText(t('chart.conscientiousness'), cx - r - 10, cy + 4);
+
+  profiles.forEach((p, idx) => {
+    const color = colors[idx % colors.length];
+    const sc = p.scores;
+    const pts = [
+      [cx, cy - (sc.D / 100) * r], [cx + (sc.I / 100) * r, cy],
+      [cx, cy + (sc.S / 100) * r], [cx - (sc.C / 100) * r, cy]
+    ];
+    ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
+    for (let i = 1; i < 4; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+    ctx.closePath();
+    ctx.globalAlpha = 0.15; ctx.fillStyle = color; ctx.fill();
+    ctx.globalAlpha = 1; ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
+
+    const px = pts.reduce((a, pt) => a + pt[0], 0) / 4;
+    const py = pts.reduce((a, pt) => a + pt[1], 0) / 4;
+    ctx.beginPath(); ctx.arc(px, py, 5, 0, Math.PI * 2);
+    ctx.fillStyle = color; ctx.fill();
+    if (p.name) {
+      ctx.font = '600 10px Inter, system-ui, sans-serif';
+      ctx.fillStyle = color; ctx.textAlign = 'left';
+      ctx.fillText(p.name, px + 8, py - 4);
+    }
+  });
+}
+
+// --- Axes Plot ---
+
+export function drawAxesPlot(canvas, scores, scores2 = null, labels = {}) {
+  const { ctx, w, h } = initCanvas(canvas, 380);
+  const cx = w / 2, cy = h / 2, r = 140;
+  ctx.clearRect(0, 0, w, h);
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.beginPath(); ctx.moveTo(cx - r, cy); ctx.lineTo(cx + r, cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx, cy - r); ctx.lineTo(cx, cy + r); ctx.stroke();
+
+  ctx.font = '600 11px Inter, system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = DISC_COLORS.D; ctx.fillText(t('chart.dominant'), cx, cy - r - 8);
+  ctx.fillStyle = DISC_COLORS.S; ctx.fillText(t('chart.supportive'), cx, cy + r + 16);
+  ctx.fillStyle = DISC_COLORS.C; ctx.fillText(t('chart.pragmatic'), cx - r - 8, cy + 4);
+  ctx.fillStyle = DISC_COLORS.I; ctx.fillText(t('chart.optimistic'), cx + r + 8, cy + 4);
+
+  function plotPoint(sc, color, size, label) {
+    const x = cx + ((sc.I - sc.C) / 100) * r;
+    const y = cy - ((sc.D - sc.S) / 100) * r;
+    ctx.beginPath(); ctx.arc(x, y, size, 0, Math.PI * 2);
+    ctx.fillStyle = color; ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 1; ctx.stroke();
+    if (label) {
+      ctx.font = '600 10px Inter, system-ui, sans-serif';
+      ctx.fillStyle = color; ctx.textAlign = 'left';
+      ctx.fillText(label, x + size + 4, y - 2);
+    }
+  }
+
+  if (scores2) plotPoint(scores2, '#9966ff', 6, labels.b);
+  plotPoint(scores, '#ffffff', 7, labels.a);
+}
+
+export function drawMultiAxesPlot(canvas, profiles) {
+  const colors = ['#ffffff','#9966ff','#ff6b9d','#4ecdc4','#ffe66d','#ff8a5c','#a8e6cf','#ff4757'];
+  const { ctx, w, h } = initCanvas(canvas, 380);
+  const cx = w / 2, cy = h / 2, r = 140;
+  ctx.clearRect(0, 0, w, h);
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.beginPath(); ctx.moveTo(cx - r, cy); ctx.lineTo(cx + r, cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx, cy - r); ctx.lineTo(cx, cy + r); ctx.stroke();
+
+  ctx.font = '600 11px Inter, system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = DISC_COLORS.D; ctx.fillText(t('chart.dominant'), cx, cy - r - 8);
+  ctx.fillStyle = DISC_COLORS.S; ctx.fillText(t('chart.supportive'), cx, cy + r + 16);
+  ctx.fillStyle = DISC_COLORS.C; ctx.fillText(t('chart.pragmatic'), cx - r - 8, cy + 4);
+  ctx.fillStyle = DISC_COLORS.I; ctx.fillText(t('chart.optimistic'), cx + r + 8, cy + 4);
+
+  profiles.forEach((p, idx) => {
+    const color = colors[idx % colors.length];
+    const sc = p.scores;
+    const x = cx + ((sc.I - sc.C) / 100) * r;
+    const y = cy - ((sc.D - sc.S) / 100) * r;
+    ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2);
+    ctx.fillStyle = color; ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 1; ctx.stroke();
+    if (p.name) {
+      ctx.font = '600 10px Inter, system-ui, sans-serif';
+      ctx.fillStyle = color; ctx.textAlign = 'left';
+      ctx.fillText(p.name, x + 9, y - 4);
+    }
+  });
+}
+
+// --- DISC Wheel ---
+
+export async function drawDiscWheel(canvas, activeType, scores, iconImages = {}) {
+  const { ctx, w, h } = initCanvas(canvas, 400);
+  const cx = w / 2, cy = h / 2;
+  const outerR = 160, innerR = 72;
+  const segAngle = (Math.PI * 2) / 16;
+  // Tilt 45° CCW: D at top-left
+  const startOffset = -Math.PI * 3 / 4;
+
   // Draw segments
-  WHEEL_TYPES.forEach((typeId, i) => {
-    const a0 = startOffset + i * slice;
-    const a1 = a0 + slice;
+  for (let i = 0; i < 16; i++) {
+    const typeId = WHEEL_TYPES[i];
+    const data = PERSONALITY_DATA[typeId];
+    const a1 = startOffset + i * segAngle;
+    const a2 = a1 + segAngle;
     const isActive = typeId === activeType;
 
-    // Segment
+    // Segment fill
     ctx.beginPath();
-    ctx.arc(cx, cy, outerR, a0, a1);
-    ctx.arc(cx, cy, innerR, a1, a0, true);
+    ctx.arc(cx, cy, outerR, a1, a2);
+    ctx.arc(cx, cy, innerR, a2, a1, true);
     ctx.closePath();
-
-    const color = typeColor(typeId);
-    ctx.fillStyle = isActive ? color : color + '30';
+    ctx.fillStyle = data.color + (isActive ? 'cc' : '44');
     ctx.fill();
-    ctx.strokeStyle = 'rgba(15,15,26,0.8)';
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+    ctx.lineWidth = 1;
     ctx.stroke();
 
-    // Glow for active
     if (isActive) {
       ctx.save();
-      ctx.beginPath();
-      ctx.arc(cx, cy, outerR + 3, a0, a1);
-      ctx.arc(cx, cy, innerR - 3, a1, a0, true);
-      ctx.closePath();
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 2;
-      ctx.shadowColor = color;
+      ctx.shadowColor = data.color;
       ctx.shadowBlur = 16;
+      ctx.beginPath();
+      ctx.arc(cx, cy, outerR, a1, a2);
+      ctx.arc(cx, cy, innerR, a2, a1, true);
+      ctx.closePath();
+      ctx.strokeStyle = data.color;
+      ctx.lineWidth = 2;
       ctx.stroke();
       ctx.restore();
     }
 
-    // Label
-    const aMid = a0 + slice / 2;
-    const lx = cx + Math.cos(aMid) * midR;
-    const ly = cy + Math.sin(aMid) * midR;
+    // Type label
+    const midAngle = a1 + segAngle / 2;
+    const labelR = (outerR + innerR) / 2 + 6;
+    const lx = cx + Math.cos(midAngle) * labelR;
+    const ly = cy + Math.sin(midAngle) * labelR;
+
     ctx.save();
     ctx.translate(lx, ly);
-    // Rotate text to follow the circle, but keep it readable
-    let textAngle = aMid + Math.PI / 2;
-    if (aMid > Math.PI / 2 && aMid < Math.PI * 1.5) {
-      textAngle += Math.PI;
-    }
-    // Actually, for short labels, no rotation looks cleaner
-    ctx.font = `${isActive ? '700' : '500'} ${isActive ? 11 : 9}px Inter, system-ui, sans-serif`;
+    ctx.rotate(midAngle + Math.PI / 2);
+    ctx.font = `${isActive ? '700' : '600'} ${isActive ? '11' : '9'}px Inter, system-ui, sans-serif`;
+    ctx.fillStyle = isActive ? '#ffffff' : 'rgba(255,255,255,0.7)';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = isActive ? '#fff' : 'rgba(255,255,255,0.6)';
     ctx.fillText(typeId, 0, 0);
     ctx.restore();
-  });
 
-  // Cardinal labels outside the wheel
-  const lblR = outerR + 18;
-  ctx.font = '700 12px Inter, system-ui, sans-serif';
+    // Icon in segment
+    const icon = iconImages[typeId];
+    if (icon) {
+      const iconR = (outerR + innerR) / 2 - 12;
+      const ix = cx + Math.cos(midAngle) * iconR;
+      const iy = cy + Math.sin(midAngle) * iconR;
+      const iconSize = 14;
+      ctx.save();
+      ctx.globalAlpha = isActive ? 0.9 : 0.35;
+      ctx.drawImage(icon, ix - iconSize / 2, iy - iconSize / 2, iconSize, iconSize);
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    }
+  }
+
+  // Cardinal labels (D top-left, I top-right, S bottom-right, C bottom-left after 45° tilt)
+  const cardinals = [
+    { dim: 'D', angle: -Math.PI * 3 / 4 },
+    { dim: 'I', angle: -Math.PI / 4 },
+    { dim: 'S', angle: Math.PI / 4 },
+    { dim: 'C', angle: Math.PI * 3 / 4 }
+  ];
+  ctx.font = '700 16px Inter, system-ui, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  const cardinals = [
-    { dim: 'D', angle: -Math.PI / 2 },
-    { dim: 'I', angle: 0 },
-    { dim: 'S', angle: Math.PI / 2 },
-    { dim: 'C', angle: Math.PI }
-  ];
-  cardinals.forEach(({ dim, angle }) => {
-    ctx.fillStyle = COLORS[dim];
-    ctx.fillText(dim, cx + Math.cos(angle) * lblR, cy + Math.sin(angle) * lblR);
-  });
+  for (const c of cardinals) {
+    const cr = outerR + 20;
+    const px = cx + Math.cos(c.angle) * cr;
+    const py = cy + Math.sin(c.angle) * cr;
+    ctx.fillStyle = DISC_COLORS[c.dim];
+    ctx.fillText(c.dim, px, py);
+  }
 
-  // Center: show score radar mini
-  const miniR = innerR * 0.7;
-  const dimAngles = [
-    { dim: 'D', angle: -Math.PI / 2 },
-    { dim: 'I', angle: 0 },
-    { dim: 'S', angle: Math.PI / 2 },
-    { dim: 'C', angle: Math.PI }
-  ];
-
-  // Mini grid
-  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-  ctx.lineWidth = 0.5;
-  ctx.beginPath();
-  ctx.arc(cx, cy, miniR, 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.arc(cx, cy, miniR * 0.5, 0, Math.PI * 2);
-  ctx.stroke();
-
-  // Mini radar fill
-  const pts = dimAngles.map(({ dim, angle }) => ({
-    x: cx + Math.cos(angle) * miniR * (scores[dim] / 100),
-    y: cy + Math.sin(angle) * miniR * (scores[dim] / 100)
-  }));
-  ctx.beginPath();
-  pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
-  ctx.closePath();
-  ctx.fillStyle = 'rgba(255,255,255,0.08)';
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(255,255,255,0.5)';
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-  pts.forEach(p => {
+  // Mini radar in center
+  if (scores) {
+    const mr = innerR - 10;
+    // Angles match cardinals: D at -3π/4, I at -π/4, S at π/4, C at 3π/4
+    const radarAngles = { D: -Math.PI * 3 / 4, I: -Math.PI / 4, S: Math.PI / 4, C: Math.PI * 3 / 4 };
+    const dims = ['D', 'I', 'S', 'C'];
+    const pts = dims.map(d => ({
+      x: cx + Math.cos(radarAngles[d]) * (scores[d] / 100) * mr,
+      y: cy + Math.sin(radarAngles[d]) * (scores[d] / 100) * mr
+    }));
     ctx.beginPath();
-    ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
-    ctx.fillStyle = '#fff';
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(255,255,255,0.1)';
     ctx.fill();
-  });
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+}
+
+// --- Icon Preloading ---
+
+export async function preloadIcons(iconGenerators, size = 16) {
+  const images = {};
+  const promises = Object.entries(iconGenerators).map(([id, fn]) =>
+    new Promise(resolve => {
+      const svg = fn(size, '#ffffff');
+      const img = new Image();
+      img.onload = () => { images[id] = img; resolve(); };
+      img.onerror = () => resolve();
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    })
+  );
+  await Promise.all(promises);
+  return images;
 }

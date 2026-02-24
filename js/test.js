@@ -1,98 +1,104 @@
-import { QUESTIONS } from './questions.js';
+import { initI18n, t, onLocaleChange } from './i18n.js';
+import { renderLayout } from './layout.js';
+import { getQuestions } from './questions.js';
 import { calculateScores, determineType, saveResult, encodeResult } from './shared.js';
 
-let currentQuestion = 0;
-const answers = {};
+let answers = {};
+let currentQ = 0;
+let questions = [];
 
-function init() {
-  const startBtn = document.getElementById('start-btn');
-  const landing = document.getElementById('landing');
-  const testSection = document.getElementById('test-section');
+async function init() {
+  await initI18n();
+  onLocaleChange(() => render());
+  render();
+}
 
-  startBtn.addEventListener('click', () => {
-    landing.style.opacity = '0';
-    setTimeout(() => {
-      landing.style.display = 'none';
-      testSection.classList.add('active');
-      renderQuestion();
-    }, 300);
+function render() {
+  renderLayout('test');
+  questions = getQuestions();
+  const content = document.getElementById('content');
+  if (!content) return;
+
+  // Check if test was in progress
+  const saved = sessionStorage.getItem('disc_answers');
+  if (saved) {
+    try { answers = JSON.parse(saved); } catch { answers = {}; }
+  }
+
+  if (Object.keys(answers).length === 0) {
+    renderLanding(content);
+  } else {
+    renderQuestion(content);
+  }
+}
+
+function renderLanding(content) {
+  content.innerHTML = `
+    <div class="hero">
+      <h1>${t('hero_title')}</h1>
+      <p>${t('hero_subtitle')}</p>
+      <button class="btn btn-primary btn-start" id="start-btn">${t('hero_start')}</button>
+    </div>
+    <div class="intro-info">
+      <p>${t('intro_text')}</p>
+      <p style="margin-top:0.75rem;opacity:0.7">${t('intro_saved')}</p>
+    </div>`;
+  document.getElementById('start-btn').addEventListener('click', () => {
+    answers = {};
+    currentQ = 0;
+    renderQuestion(content);
   });
 }
 
-function renderQuestion() {
-  const q = QUESTIONS[currentQuestion];
-  const total = QUESTIONS.length;
+function renderQuestion(content) {
+  if (currentQ >= questions.length) {
+    finishTest();
+    return;
+  }
+  const q = questions[currentQ];
+  const progressPct = ((currentQ + 1) / questions.length) * 100;
+  const progressText = t('test_progress').replace('{n}', currentQ + 1).replace('{total}', questions.length);
 
-  document.getElementById('progress-fill').style.width = `${((currentQuestion) / total) * 100}%`;
-  document.getElementById('progress-text').textContent = `Question ${currentQuestion + 1} of ${total}`;
-
-  const container = document.getElementById('question-container');
-  const existing = answers[q.id];
-
-  container.innerHTML = `
-    <div class="question-card card" key="${q.id}">
-      <h2>"${q.text}"</h2>
-      <div class="likert-scale">
-        ${[1, 2, 3, 4, 5].map(v => `
-          <button data-value="${v}" class="${existing?.score === v ? 'selected' : ''}">${v}</button>
-        `).join('')}
+  content.innerHTML = `
+    <div class="test-container">
+      <div class="progress-section">
+        <div class="progress-text">${progressText}</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${progressPct}%"></div></div>
       </div>
-      <div class="likert-labels">
-        <span>Strongly Disagree</span>
-        <span>Strongly Agree</span>
+      <div class="question-card">
+        <p class="question-text">${q.text}</p>
+        <div class="likert-scale">
+          <span class="likert-label">${t('test_disagree')}</span>
+          ${[1,2,3,4,5].map(v => `<button class="likert-btn ${answers[q.id] === v ? 'selected' : ''}" data-value="${v}">${v}</button>`).join('')}
+          <span class="likert-label">${t('test_agree')}</span>
+        </div>
+        <div class="question-nav">
+          ${currentQ > 0 ? `<button class="btn btn-secondary" id="back-btn">${t('test_back')}</button>` : '<span></span>'}
+          ${answers[q.id] ? `<button class="btn btn-primary" id="next-btn">${t('test_next')}</button>` : '<span></span>'}
+        </div>
       </div>
-      <div class="test-nav">
-        <button class="btn btn-ghost" id="prev-btn" ${currentQuestion === 0 ? 'disabled style="visibility:hidden"' : ''}>← Back</button>
-        <button class="btn btn-ghost" id="next-btn" ${!existing ? 'disabled style="opacity:0.3"' : ''}>Next →</button>
-      </div>
-    </div>
-  `;
+    </div>`;
 
-  container.querySelectorAll('.likert-scale button').forEach(btn => {
+  content.querySelectorAll('.likert-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const value = parseInt(btn.dataset.value);
-      answers[q.id] = { score: value, dimension: q.dimension };
-
-      container.querySelectorAll('.likert-scale button').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-
-      const nextBtn = document.getElementById('next-btn');
-      nextBtn.disabled = false;
-      nextBtn.style.opacity = '1';
-
-      // Auto-advance after short delay
-      setTimeout(() => advance(), 350);
+      answers[q.id] = parseInt(btn.dataset.value);
+      sessionStorage.setItem('disc_answers', JSON.stringify(answers));
+      setTimeout(() => { currentQ++; renderQuestion(content); }, 200);
     });
   });
 
-  document.getElementById('prev-btn')?.addEventListener('click', () => {
-    if (currentQuestion > 0) {
-      currentQuestion--;
-      renderQuestion();
-    }
-  });
+  const backBtn = document.getElementById('back-btn');
+  if (backBtn) backBtn.addEventListener('click', () => { currentQ--; renderQuestion(content); });
 
-  document.getElementById('next-btn')?.addEventListener('click', advance);
-}
-
-function advance() {
-  const q = QUESTIONS[currentQuestion];
-  if (!answers[q.id]) return;
-
-  if (currentQuestion < QUESTIONS.length - 1) {
-    currentQuestion++;
-    renderQuestion();
-  } else {
-    finishTest();
-  }
+  const nextBtn = document.getElementById('next-btn');
+  if (nextBtn) nextBtn.addEventListener('click', () => { currentQ++; renderQuestion(content); });
 }
 
 function finishTest() {
   const scores = calculateScores(answers);
-  const type = determineType(scores);
-  saveResult(scores, type);
-  const code = encodeResult(scores);
-  window.location.href = `results.html?r=${code}`;
+  saveResult(scores);
+  sessionStorage.removeItem('disc_answers');
+  window.location.href = 'results.html';
 }
 
-document.addEventListener('DOMContentLoaded', init);
+init();
