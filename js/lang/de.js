@@ -79,6 +79,7 @@ export default {
   compare_quadrant: 'Quadrantendiagramm',
   compare_insights: 'Kompatibilitätseinblicke',
   compare_share: 'Diesen Vergleich teilen',
+  compare_view_results: 'Ergebnisse ansehen',
   compare_need_two: 'Mindestens 2 gültige Profile zum Vergleichen erforderlich.',
   compare_no_saved: 'Kein gespeichertes Ergebnis gefunden. Mache zuerst den Test!',
   compare_similarity: 'Gesamtähnlichkeit',

@@ -79,6 +79,7 @@ export default {
   compare_quadrant: 'Graphique en quadrants',
   compare_insights: 'Aperçus de compatibilité',
   compare_share: 'Partager cette comparaison',
+  compare_view_results: 'Voir les résultats',
   compare_need_two: 'Il faut au moins 2 profils valides pour comparer.',
   compare_no_saved: 'Aucun résultat sauvegardé trouvé. Passez d\'abord le test !',
   compare_similarity: 'Similarité globale',

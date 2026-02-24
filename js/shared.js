@@ -30,8 +30,15 @@ export function determineType(scores) {
   const diff = fScore - sScore;
   const adjacent = ADJACENT[first]?.includes(second);
   if (!adjacent || diff > 25) return first;
-  if (diff <= 8) return first + second;
-  return first + second.toLowerCase();
+  // Equal blends must follow clockwise DISC order: DI, IS, SC, CD
+  const BLEND_ORDER = { D: { I: 'DI', C: 'CD' }, I: { D: 'DI', S: 'IS' }, S: { I: 'IS', C: 'SC' }, C: { S: 'SC', D: 'CD' } };
+  if (diff <= 8) return BLEND_ORDER[first]?.[second] || first + second;
+  // Dominant blend: primary + lowercase secondary, respecting wheel order
+  const DOM_ORDER = {
+    D: { I: 'Di', C: 'Dc' }, I: { D: 'Id', S: 'Is' },
+    S: { I: 'Si', C: 'Sc' }, C: { S: 'Cs', D: 'Cd' }
+  };
+  return DOM_ORDER[first]?.[second] || first + second.toLowerCase();
 }
 
 // --- Encoding ---

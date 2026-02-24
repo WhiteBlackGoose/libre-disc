@@ -46,6 +46,11 @@ async function renderPage() {
   const code = encodeResult(currentScores);
   const shareUrl = window.location.origin + window.location.pathname + '?r=' + code;
 
+  // Update URL bar so users can always copy/bookmark it
+  if (!window.location.search.includes('r=')) {
+    history.replaceState(null, '', '?r=' + code);
+  }
+
   // Icon SVG
   const iconFn = TYPE_ICONS[typeId];
   const iconSvg = iconFn ? iconFn(64, personality.color) : '';
