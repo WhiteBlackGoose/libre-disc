@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DISC Personality Test</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav>
+    <div class="logo">DISC Test</div>
+    <div class="nav-links">
+      <a href="index.html" class="active">Test</a>
+      <a href="results.html">Results</a>
+      <a href="compare.html">Compare</a>
+    </div>
+  </nav>
+
+  <div class="container" id="landing">
+    <div class="hero">
+      <h1>Discover Your DISC Personality</h1>
+      <p>Understand your behavioral style across 16 personality types. Takes about 5 minutes.</p>
+      <button class="btn btn-primary" id="start-btn">Start the Test →</button>
+    </div>
+
+    <div class="disc-grid">
+      <div class="disc-badge">
+        <div class="letter" style="color: var(--color-d)">D</div>
+        <div class="label">Dominance</div>
+      </div>
+      <div class="disc-badge">
+        <div class="letter" style="color: var(--color-i)">I</div>
+        <div class="label">Influence</div>
+      </div>
+      <div class="disc-badge">
+        <div class="letter" style="color: var(--color-s)">S</div>
+        <div class="label">Steadiness</div>
+      </div>
+      <div class="disc-badge">
+        <div class="letter" style="color: var(--color-c)">C</div>
+        <div class="label">Conscientiousness</div>
+      </div>
+    </div>
+
+    <div style="text-align: center; margin: 2rem 0;">
+      <p style="color: var(--text-secondary); max-width: 520px; margin: 0 auto 1.5rem; font-size: 0.95rem;">
+        Rate 28 statements on a 1–5 scale. Your results map to one of 16 personality profiles —
+        including blended types like <strong>Di</strong>, <strong>IS</strong>, <strong>Cd</strong>, and more.
+      </p>
+      <p style="color: var(--text-secondary); font-size: 0.85rem;">
+        Results are saved locally and can be shared via a compact code for comparison.
+      </p>
+    </div>
+  </div>
+
+  <div class="container" id="test-section">
+    <div class="progress-bar"><div class="fill" id="progress-fill"></div></div>
+    <div class="progress-text" id="progress-text"></div>
+    <div id="question-container"></div>
+  </div>
+
+  <footer>
+    <p>DISC Personality Test — For educational & self-reflection purposes</p>
+  </footer>
+
+  <script type="module" src="js/test.js"></script>
+</body>
+</html>
