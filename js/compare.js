@@ -260,6 +260,11 @@ async function renderResults(profiles) {
   container.innerHTML = `
     <div class="card"><div class="compare-legend">${legend}</div></div>
 
+    <div class="card wheel-section">
+      <h3>${t('compare_wheel')}</h3>
+      <div class="wheel-container"><canvas id="compare-wheel"></canvas></div>
+    </div>
+
     <div class="card">
       <h3>${t('compare_scores')}</h3>
       <div id="compare-bars"></div>
@@ -279,11 +284,6 @@ async function renderResults(profiles) {
         <h3>${t('compare_quadrant')}</h3>
         <canvas id="compare-quadrant"></canvas>
       </div>
-    </div>
-
-    <div class="card wheel-section">
-      <h3>${t('compare_wheel')}</h3>
-      <div class="wheel-container"><canvas id="compare-wheel"></canvas></div>
     </div>
 
     <div class="card">

@@ -76,6 +76,11 @@ async function renderPage() {
       <p class="type-desc">${personality.desc || ''}</p>
     </div>
 
+    <div class="card wheel-section">
+      <h3>${t('results_wheel')}</h3>
+      <div class="wheel-container"><canvas id="wheel-canvas"></canvas></div>
+    </div>
+
     <div class="results-grid">
       <div class="card">
         <h3>${t('results_scores')}</h3>
@@ -110,11 +115,6 @@ async function renderPage() {
       <h3>${t('results_professions')}</h3>
       <div class="professions-list">${personality.professions.map(p => `<span class="profession-tag">${p}</span>`).join('')}</div>
     </div>` : ''}
-
-    <div class="card wheel-section">
-      <h3>${t('results_wheel')}</h3>
-      <div class="wheel-container"><canvas id="wheel-canvas"></canvas></div>
-    </div>
 
     <div class="results-grid">
       <div class="card">
