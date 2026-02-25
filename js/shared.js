@@ -540,44 +540,44 @@ export async function drawMultiDiscWheel(canvas, profiles, iconImages = {}) {
     ctx.fillText(c.dim, cx + Math.cos(c.angle) * cr, cy + Math.sin(c.angle) * cr);
   }
 
-  // Overlay each profile's mini radar + marker dot
-  const radarAngles = { D: -Math.PI * 3 / 4, I: -Math.PI / 4, S: Math.PI / 4, C: Math.PI * 3 / 4 };
-  const dims = ['D', 'I', 'S', 'C'];
-  const mr = innerR - 10;
-
+  // Build map of type -> list of profile names+colors for labeling
+  const typeProfiles = {};
   profiles.forEach((p, idx) => {
-    const color = profileColors[idx % profileColors.length];
-    const sc = p.scores;
-    const pts = dims.map(d => ({
-      x: cx + Math.cos(radarAngles[d]) * (sc[d] / 100) * mr,
-      y: cy + Math.sin(radarAngles[d]) * (sc[d] / 100) * mr
-    }));
-    ctx.beginPath();
-    ctx.moveTo(pts[0].x, pts[0].y);
-    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
-    ctx.closePath();
-    ctx.globalAlpha = 0.1;
-    ctx.fillStyle = color;
-    ctx.fill();
-    ctx.globalAlpha = 1;
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-
-    // Dot at centroid
-    const px = pts.reduce((a, pt) => a + pt.x, 0) / 4;
-    const py = pts.reduce((a, pt) => a + pt.y, 0) / 4;
-    ctx.beginPath();
-    ctx.arc(px, py, 4, 0, Math.PI * 2);
-    ctx.fillStyle = color;
-    ctx.fill();
-    if (p.name) {
-      ctx.font = '600 9px Inter, system-ui, sans-serif';
-      ctx.fillStyle = color;
-      ctx.textAlign = 'left';
-      ctx.fillText(p.name, px + 6, py - 3);
-    }
+    if (!typeProfiles[p.type]) typeProfiles[p.type] = [];
+    typeProfiles[p.type].push({ name: p.name, color: profileColors[idx % profileColors.length] });
   });
+
+  // Draw name labels on active segments
+  for (let i = 0; i < 16; i++) {
+    const typeId = WHEEL_TYPES[i];
+    const names = typeProfiles[typeId];
+    if (!names) continue;
+    const a1 = startOffset + i * segAngle;
+    const midAngle = a1 + segAngle / 2;
+    const nameR = (outerR + innerR) / 2 - 16;
+    names.forEach((entry, ni) => {
+      const offset = (ni - (names.length - 1) / 2) * 10;
+      const nr = nameR + offset;
+      const nx = cx + Math.cos(midAngle) * nr;
+      const ny = cy + Math.sin(midAngle) * nr;
+      if (entry.name) {
+        ctx.save();
+        ctx.translate(nx, ny);
+        ctx.rotate(midAngle + Math.PI / 2);
+        ctx.font = '700 8px Inter, system-ui, sans-serif';
+        ctx.fillStyle = entry.color;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(entry.name, 0, 0);
+        ctx.restore();
+      }
+      // Small dot marker
+      ctx.beginPath();
+      ctx.arc(nx, ny + (entry.name ? 6 : 0), 3, 0, Math.PI * 2);
+      ctx.fillStyle = entry.color;
+      ctx.fill();
+    });
+  }
 }
 
 // --- Icon Preloading ---
