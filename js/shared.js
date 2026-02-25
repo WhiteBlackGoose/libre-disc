@@ -555,23 +555,29 @@ export async function drawMultiDiscWheel(canvas, profiles, iconImages = {}) {
     const a1 = startOffset + i * segAngle;
     const midAngle = a1 + segAngle / 2;
     names.forEach((entry, ni) => {
-      const labelR = outerR + 38 + ni * 14;
-      const nx = cx + Math.cos(midAngle) * labelR;
-      const ny = cy + Math.sin(midAngle) * labelR;
+      // Fan out angularly within the segment for multiple people
+      const spread = names.length > 1 ? segAngle * 0.6 : 0;
+      const angleOffset = names.length > 1
+        ? -spread / 2 + (spread / (names.length - 1)) * ni
+        : 0;
+      const angle = midAngle + angleOffset;
+      const labelR = outerR + 38;
+      const nx = cx + Math.cos(angle) * labelR;
+      const ny = cy + Math.sin(angle) * labelR;
 
       // Connector line
       const lineStart = outerR + 2;
       const lineEnd = labelR - 4;
       ctx.beginPath();
-      ctx.moveTo(cx + Math.cos(midAngle) * lineStart, cy + Math.sin(midAngle) * lineStart);
-      ctx.lineTo(cx + Math.cos(midAngle) * lineEnd, cy + Math.sin(midAngle) * lineEnd);
+      ctx.moveTo(cx + Math.cos(angle) * lineStart, cy + Math.sin(angle) * lineStart);
+      ctx.lineTo(cx + Math.cos(angle) * lineEnd, cy + Math.sin(angle) * lineEnd);
       ctx.strokeStyle = entry.color + '66';
       ctx.lineWidth = 1;
       ctx.stroke();
 
       // Dot
       ctx.beginPath();
-      ctx.arc(cx + Math.cos(midAngle) * (outerR + 4), cy + Math.sin(midAngle) * (outerR + 4), 3, 0, Math.PI * 2);
+      ctx.arc(cx + Math.cos(angle) * (outerR + 4), cy + Math.sin(angle) * (outerR + 4), 3, 0, Math.PI * 2);
       ctx.fillStyle = entry.color;
       ctx.fill();
 
@@ -579,10 +585,9 @@ export async function drawMultiDiscWheel(canvas, profiles, iconImages = {}) {
       if (entry.name) {
         ctx.save();
         ctx.translate(nx, ny);
-        // Keep text horizontal for readability
         ctx.font = '700 9px Inter, system-ui, sans-serif';
         ctx.fillStyle = entry.color;
-        ctx.textAlign = midAngle > -Math.PI / 2 && midAngle < Math.PI / 2 ? 'left' : 'right';
+        ctx.textAlign = angle > -Math.PI / 2 && angle < Math.PI / 2 ? 'left' : 'right';
         ctx.textBaseline = 'middle';
         ctx.fillText(entry.name, 0, 0);
         ctx.restore();
