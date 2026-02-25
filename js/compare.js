@@ -5,7 +5,7 @@ import { TYPE_ICONS } from './icons.js';
 import {
   decodeResult, encodeResult, extractCode, determineType, loadResult,
   encodeProfiles, decodeProfiles, renderMultiAxisSliders,
-  drawMultiDiamond, drawMultiAxesPlot, preloadIcons
+  drawMultiDiamond, drawMultiAxesPlot, drawMultiDiscWheel, preloadIcons
 } from './shared.js';
 
 const PROFILE_COLORS = ['#ffffff','#9966ff','#ff6b9d','#4ecdc4','#ffe66d','#ff8a5c','#a8e6cf','#ff4757'];
@@ -145,7 +145,7 @@ function runComparison() {
   renderResults(profiles);
 }
 
-function renderResults(profiles) {
+async function renderResults(profiles) {
   const container = document.getElementById('compare-results');
   if (!container) return;
 
@@ -184,6 +184,11 @@ function renderResults(profiles) {
       </div>
     </div>
 
+    <div class="card wheel-section">
+      <h3>${t('compare_wheel')}</h3>
+      <div class="wheel-container"><canvas id="compare-wheel"></canvas></div>
+    </div>
+
     <div class="card">
       <h3>${t('compare_insights')}</h3>
       <div id="compare-insights"></div>
@@ -218,6 +223,7 @@ function renderResults(profiles) {
   // Charts
   drawMultiDiamond(document.getElementById('compare-diamond'), profiles);
   drawMultiAxesPlot(document.getElementById('compare-quadrant'), profiles);
+  await drawMultiDiscWheel(document.getElementById('compare-wheel'), profiles, iconImages);
 
   // Insights (pairwise for first two profiles)
   renderInsights(profiles);

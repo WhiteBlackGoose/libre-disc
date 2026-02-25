@@ -454,6 +454,132 @@ export async function drawDiscWheel(canvas, activeType, scores, iconImages = {})
   }
 }
 
+export async function drawMultiDiscWheel(canvas, profiles, iconImages = {}) {
+  const profileColors = ['#ffffff','#9966ff','#ff6b9d','#4ecdc4','#ffe66d','#ff8a5c','#a8e6cf','#ff4757'];
+  const { ctx, w, h } = initCanvas(canvas, 400);
+  const cx = w / 2, cy = h / 2;
+  const outerR = 160, innerR = 72;
+  const segAngle = (Math.PI * 2) / 16;
+  const startOffset = -Math.PI * 3 / 4;
+
+  // Collect active types
+  const activeTypes = new Set(profiles.map(p => p.type));
+
+  // Draw segments
+  for (let i = 0; i < 16; i++) {
+    const typeId = WHEEL_TYPES[i];
+    const data = PERSONALITY_DATA[typeId];
+    const a1 = startOffset + i * segAngle;
+    const a2 = a1 + segAngle;
+    const isActive = activeTypes.has(typeId);
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, outerR, a1, a2);
+    ctx.arc(cx, cy, innerR, a2, a1, true);
+    ctx.closePath();
+    ctx.fillStyle = data.color + (isActive ? '88' : '33');
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    if (isActive) {
+      ctx.save();
+      ctx.shadowColor = data.color;
+      ctx.shadowBlur = 12;
+      ctx.beginPath();
+      ctx.arc(cx, cy, outerR, a1, a2);
+      ctx.arc(cx, cy, innerR, a2, a1, true);
+      ctx.closePath();
+      ctx.strokeStyle = data.color;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    const midAngle = a1 + segAngle / 2;
+    const labelR = (outerR + innerR) / 2 + 6;
+    const lx = cx + Math.cos(midAngle) * labelR;
+    const ly = cy + Math.sin(midAngle) * labelR;
+    ctx.save();
+    ctx.translate(lx, ly);
+    ctx.rotate(midAngle + Math.PI / 2);
+    ctx.font = `${isActive ? '700' : '600'} ${isActive ? '11' : '9'}px Inter, system-ui, sans-serif`;
+    ctx.fillStyle = isActive ? '#ffffff' : 'rgba(255,255,255,0.7)';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(typeId, 0, 0);
+    ctx.restore();
+
+    const icon = iconImages[typeId];
+    if (icon) {
+      const iconR = (outerR + innerR) / 2 - 12;
+      const ix = cx + Math.cos(midAngle) * iconR;
+      const iy = cy + Math.sin(midAngle) * iconR;
+      ctx.save();
+      ctx.globalAlpha = isActive ? 0.9 : 0.3;
+      ctx.drawImage(icon, ix - 7, iy - 7, 14, 14);
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    }
+  }
+
+  // Cardinal labels
+  const cardinals = [
+    { dim: 'D', angle: -Math.PI * 3 / 4 },
+    { dim: 'I', angle: -Math.PI / 4 },
+    { dim: 'S', angle: Math.PI / 4 },
+    { dim: 'C', angle: Math.PI * 3 / 4 }
+  ];
+  ctx.font = '700 16px Inter, system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  for (const c of cardinals) {
+    const cr = outerR + 20;
+    ctx.fillStyle = DISC_COLORS[c.dim];
+    ctx.fillText(c.dim, cx + Math.cos(c.angle) * cr, cy + Math.sin(c.angle) * cr);
+  }
+
+  // Overlay each profile's mini radar + marker dot
+  const radarAngles = { D: -Math.PI * 3 / 4, I: -Math.PI / 4, S: Math.PI / 4, C: Math.PI * 3 / 4 };
+  const dims = ['D', 'I', 'S', 'C'];
+  const mr = innerR - 10;
+
+  profiles.forEach((p, idx) => {
+    const color = profileColors[idx % profileColors.length];
+    const sc = p.scores;
+    const pts = dims.map(d => ({
+      x: cx + Math.cos(radarAngles[d]) * (sc[d] / 100) * mr,
+      y: cy + Math.sin(radarAngles[d]) * (sc[d] / 100) * mr
+    }));
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+    ctx.closePath();
+    ctx.globalAlpha = 0.1;
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Dot at centroid
+    const px = pts.reduce((a, pt) => a + pt.x, 0) / 4;
+    const py = pts.reduce((a, pt) => a + pt.y, 0) / 4;
+    ctx.beginPath();
+    ctx.arc(px, py, 4, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+    if (p.name) {
+      ctx.font = '600 9px Inter, system-ui, sans-serif';
+      ctx.fillStyle = color;
+      ctx.textAlign = 'left';
+      ctx.fillText(p.name, px + 6, py - 3);
+    }
+  });
+}
+
 // --- Icon Preloading ---
 
 export async function preloadIcons(iconGenerators, size = 16) {

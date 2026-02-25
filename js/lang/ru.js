@@ -80,6 +80,7 @@ export default {
   compare_insights: 'Анализ совместимости',
   compare_share: 'Поделиться этим сравнением',
   compare_view_results: 'Смотреть результаты',
+  compare_wheel: 'Колесо DISC',
   compare_need_two: 'Для сравнения необходимо минимум 2 действительных профиля.',
   compare_no_saved: 'Сохранённый результат не найден. Сначала пройдите тест!',
   compare_similarity: 'Общее сходство',

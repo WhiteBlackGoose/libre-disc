@@ -80,6 +80,7 @@ export default {
   compare_insights: 'Compatibility Insights',
   compare_share: 'Share This Comparison',
   compare_view_results: 'View Results',
+  compare_wheel: 'DISC Wheel',
   compare_need_two: 'Need at least 2 valid profiles to compare.',
   compare_no_saved: 'No saved result found. Take the test first!',
   compare_similarity: 'Overall Similarity',

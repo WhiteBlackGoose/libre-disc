@@ -80,6 +80,7 @@ export default {
   compare_insights: 'Analisi di Compatibilità',
   compare_share: 'Condividi Questo Confronto',
   compare_view_results: 'Vedi risultati',
+  compare_wheel: 'Ruota DISC',
   compare_need_two: 'Servono almeno 2 profili validi per il confronto.',
   compare_no_saved: 'Nessun risultato salvato trovato. Fai prima il test!',
   compare_similarity: 'Somiglianza Complessiva',
