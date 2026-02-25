@@ -9,57 +9,146 @@ import {
 } from './shared.js';
 
 const PROFILE_COLORS = ['#ffffff','#9966ff','#ff6b9d','#4ecdc4','#ffe66d','#ff8a5c','#a8e6cf','#ff4757'];
+const STORAGE_KEY = 'disc_teams';
+
+let teamName = '';
 let profileInputs = [{ name: '', code: '' }, { name: '', code: '' }];
 let iconImages = {};
+let activeTeamId = null; // id of team currently being viewed/edited
+
+// --- localStorage helpers ---
+
+function loadTeams() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { return []; }
+}
+
+function saveTeams(teams) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(teams));
+}
+
+function saveCurrentTeam(profiles) {
+  const teams = loadTeams();
+  const encoded = encodeProfiles(profiles.map(p => ({ name: p.name, code: extractCode(p.code) || p.code })));
+  // Deduplicate: find existing team with same encoded profiles
+  const existing = teams.find(t => t.encoded === encoded);
+  if (existing) {
+    activeTeamId = existing.id;
+  } else if (activeTeamId) {
+    // Profiles changed from the original team — fork into a new team
+    const orig = teams.find(t => t.id === activeTeamId);
+    if (orig && orig.encoded !== encoded) {
+      activeTeamId = null;
+    }
+  }
+  const entry = {
+    id: activeTeamId || Date.now().toString(36),
+    name: teamName || t('team_untitled'),
+    profiles: profiles.map(p => ({ name: p.name, code: extractCode(p.code) || p.code })),
+    encoded,
+    updatedAt: Date.now()
+  };
+  const idx = teams.findIndex(t => t.id === entry.id);
+  if (idx >= 0) teams[idx] = entry; else teams.unshift(entry);
+  saveTeams(teams);
+  activeTeamId = entry.id;
+  return entry;
+}
+
+function deleteTeam(id) {
+  saveTeams(loadTeams().filter(t => t.id !== id));
+}
+
+// --- init ---
 
 async function init() {
   await initI18n();
   iconImages = await preloadIcons(TYPE_ICONS);
   onLocaleChange(() => renderPage());
 
-  // Check URL params
   const params = new URLSearchParams(window.location.search);
   const pParam = params.get('p');
   const aParam = params.get('a');
   const bParam = params.get('b');
+  const nameParam = params.get('n');
 
   if (pParam) {
     const decoded = decodeProfiles(pParam);
     if (decoded.length >= 2) {
       profileInputs = decoded;
+      teamName = nameParam || '';
       renderPage();
-      runComparison();
+      runComparison(true); // auto-save from URL
       return;
     }
   } else if (aParam && bParam) {
     profileInputs = [{ name: '', code: aParam }, { name: '', code: bParam }];
     renderPage();
-    runComparison();
+    runComparison(true);
     return;
   }
 
   renderPage();
 }
 
+// --- page rendering ---
+
 function renderPage() {
   renderLayout('compare');
   const content = document.getElementById('content');
   if (!content) return;
+
+  const teams = loadTeams();
+  const savedTeamsHtml = teams.length > 0 ? `
+    <div class="card saved-teams-card">
+      <h3>${t('team_saved_teams')}</h3>
+      <div class="saved-teams-list">
+        ${teams.map(team => {
+          const memberSummary = team.profiles.map(p => p.name || '?').join(', ');
+          const date = new Date(team.updatedAt).toLocaleDateString();
+          return `<div class="saved-team-row">
+            <a href="compare.html?p=${team.encoded}&n=${encodeURIComponent(team.name)}" class="saved-team-link">
+              <strong>${team.name}</strong>
+              <span class="saved-team-meta">${memberSummary} · ${date}</span>
+            </a>
+            <button class="btn btn-sm btn-danger delete-team" data-id="${team.id}" title="${t('team_delete')}">✕</button>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>` : '';
 
   content.innerHTML = `
     <div class="compare-header">
       <h1>${t('compare_title')}</h1>
       <p>${t('compare_subtitle')}</p>
     </div>
-    <div id="profiles-input" class="profiles-input"></div>
-    <div class="compare-actions">
-      <button class="btn btn-secondary" id="add-profile">${t('compare_add')}</button>
-      <button class="btn btn-secondary" id="load-saved">${t('compare_load')}</button>
-      <button class="btn btn-primary" id="compare-btn">${t('compare_btn')}</button>
+    ${savedTeamsHtml}
+    <div class="card" style="margin:1.5rem 0;padding:1.5rem">
+      <h3>${t('team_new_team')}</h3>
+      <div class="team-name-row">
+        <input type="text" class="input" id="team-name-input" placeholder="${t('team_name_placeholder')}" value="${teamName}">
+      </div>
+      <div id="profiles-input" class="profiles-input"></div>
+      <div class="compare-actions">
+        <button class="btn btn-secondary" id="add-profile">${t('compare_add')}</button>
+        <button class="btn btn-secondary" id="load-saved">${t('compare_load')}</button>
+        <button class="btn btn-primary" id="compare-btn">${t('compare_btn')}</button>
+      </div>
     </div>
     <div id="compare-results"></div>`;
 
   renderProfileInputs();
+
+  // Team name
+  document.getElementById('team-name-input').addEventListener('input', e => { teamName = e.target.value; });
+
+  // Delete saved teams
+  content.querySelectorAll('.delete-team').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      deleteTeam(btn.dataset.id);
+      renderPage();
+    });
+  });
 
   document.getElementById('add-profile').addEventListener('click', () => {
     profileInputs.push({ name: '', code: '' });
@@ -81,7 +170,7 @@ function renderPage() {
     }
   });
 
-  document.getElementById('compare-btn').addEventListener('click', runComparison);
+  document.getElementById('compare-btn').addEventListener('click', () => runComparison(false));
 }
 
 function renderProfileInputs() {
@@ -109,12 +198,16 @@ function renderProfileInputs() {
   });
 }
 
-function runComparison() {
-  // Save current input values
+// --- comparison ---
+
+function runComparison(autoSave) {
+  // Sync input values
   document.querySelectorAll('#profiles-input input').forEach(inp => {
     const idx = parseInt(inp.dataset.idx);
     if (profileInputs[idx]) profileInputs[idx][inp.dataset.field] = inp.value;
   });
+  const nameInp = document.getElementById('team-name-input');
+  if (nameInp) teamName = nameInp.value;
 
   const profiles = profileInputs
     .map((p, i) => {
@@ -132,15 +225,19 @@ function runComparison() {
     .filter(Boolean);
 
   if (profiles.length < 2) {
-    alert(t('compare_need_two'));
+    if (!autoSave) alert(t('compare_need_two'));
     return;
   }
 
   // Update URL
-  const encoded = encodeProfiles(profileInputs.filter(p => extractCode(p.code) && decodeResult(extractCode(p.code)))
-    .map(p => ({ name: p.name, code: extractCode(p.code) })));
-  const newUrl = window.location.pathname + '?p=' + encoded;
-  history.replaceState(null, '', newUrl);
+  const validInputs = profileInputs.filter(p => extractCode(p.code) && decodeResult(extractCode(p.code)));
+  const encoded = encodeProfiles(validInputs.map(p => ({ name: p.name, code: extractCode(p.code) })));
+  const urlParams = new URLSearchParams({ p: encoded });
+  if (teamName) urlParams.set('n', teamName);
+  history.replaceState(null, '', window.location.pathname + '?' + urlParams.toString());
+
+  // Save team
+  saveCurrentTeam(validInputs);
 
   renderResults(profiles);
 }

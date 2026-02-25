@@ -1054,6 +1054,42 @@ footer {
   background-clip: text;
 }
 .compare-header p { color: var(--text-secondary); margin-top: 0.75rem; }
+
+.saved-teams-card { margin: 1.5rem 0; }
+.saved-teams-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.saved-team-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+.saved-team-link {
+  flex: 1;
+  text-decoration: none;
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.saved-team-link:hover strong { color: var(--color-i); }
+.saved-team-meta { font-size: 0.75rem; color: var(--text-secondary); }
+.team-name-row { margin-bottom: 0.75rem; }
+.team-name-row .input {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.team-name-row .input:focus { outline: none; border-color: var(--color-i); }
+
 .profiles-input { display: flex; flex-direction: column; gap: 0.5rem; margin: 1rem 0; }
 .profile-input-row {
   display: flex;
