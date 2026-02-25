@@ -15,7 +15,10 @@ function renderNav(activePage) {
   const el = document.getElementById('nav-container');
   if (!el) return;
   el.innerHTML = `<nav>
-    <a href="index.html" class="logo">Libre DISC</a>
+    <div class="nav-brand">
+      <a href="index.html" class="logo">Libre DISC</a>
+      <span class="nav-tagline">${t('nav_tagline')}</span>
+    </div>
     <div class="nav-links">
       <a href="index.html" class="${activePage === 'test' ? 'active' : ''}">${t('nav.test')}</a>
       <a href="results.html" class="${activePage === 'results' ? 'active' : ''}">${t('nav.results')}</a>

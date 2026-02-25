@@ -40,6 +40,12 @@ nav {
   backdrop-filter: blur(12px);
 }
 
+nav .nav-brand {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
 nav .logo {
   font-weight: 800;
   font-size: 1.25rem;
@@ -48,6 +54,15 @@ nav .logo {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  text-decoration: none;
+}
+
+nav .nav-tagline {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  opacity: 0.7;
 }
 
 nav .nav-links {
@@ -1091,17 +1106,52 @@ footer {
   text-align: right;
 }
 .similarity-bar { margin-bottom: 0.5rem; }
-.insight-item {
-  display: flex;
-  gap: 0.75rem;
-  align-items: baseline;
-  margin-bottom: 0.5rem;
-  font-size: 0.85rem;
-}
-.insight-dim { font-weight: 700; width: 110px; flex-shrink: 0; }
-.insight-level { font-weight: 600; width: 120px; flex-shrink: 0; }
-.insight-desc { color: var(--text-secondary); }
 .insights-grid { margin-top: 1rem; }
+
+/* ===== TEAM INSIGHTS ===== */
+.team-insights-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.team-insight-block h4 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+.team-insight-desc {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+}
+.team-trait-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.team-trait-item {
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.02);
+}
+.team-trait-text {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.team-strength .team-trait-text { color: var(--color-s); }
+.team-risk .team-trait-text { color: var(--color-d); }
+.team-amortized .team-trait-text { color: var(--color-i); }
+.team-trait-meta {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  margin-top: 0.2rem;
+}
+@media (max-width: 768px) {
+  .team-insights-grid { grid-template-columns: 1fr; }
+}
 
 .results-grid canvas { width: 100%; display: block; }
 

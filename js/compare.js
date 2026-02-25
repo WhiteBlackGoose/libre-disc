@@ -243,45 +243,112 @@ function renderInsights(profiles) {
   const container = document.getElementById('compare-insights');
   if (profiles.length < 2) return;
 
-  const a = profiles[0].scores, b = profiles[1].scores;
-  const dims = ['D', 'I', 'S', 'C'];
-  const diffs = dims.map(d => Math.abs(a[d] - b[d]));
-  const avgDiff = diffs.reduce((s, d) => s + d, 0) / 4;
-  const similarity = Math.max(0, Math.round(100 - avgDiff));
+  // Gather all strengths/challenges across profiles
+  const strengthMap = {};  // strength text -> [profile names]
+  const challengeMap = {}; // challenge text -> [profile names]
+  const profileStrengths = {}; // name -> Set of strengths
+  const profileChallenges = {}; // name -> Set of challenges
 
-  let overallMsg;
-  if (similarity > 75) overallMsg = t('insight_high');
-  else if (similarity > 45) overallMsg = t('insight_mid');
-  else overallMsg = t('insight_low');
+  profiles.forEach(p => {
+    const personality = getPersonality(p.type);
+    const strengths = personality.strengths || [];
+    const challenges = personality.challenges || [];
+    profileStrengths[p.name] = new Set(strengths);
+    profileChallenges[p.name] = new Set(challenges);
+    strengths.forEach(s => {
+      if (!strengthMap[s]) strengthMap[s] = [];
+      strengthMap[s].push(p.name);
+    });
+    challenges.forEach(c => {
+      if (!challengeMap[c]) challengeMap[c] = [];
+      challengeMap[c].push(p.name);
+    });
+  });
 
-  const dimInsights = dims.map((d, i) => {
-    const diff = diffs[i];
-    const dimName = t('dim.' + d);
-    let level, desc;
-    if (diff < 15) {
-      level = t('insight_aligned');
-      desc = t('insight_aligned_desc').replace('{dim}', dimName);
-    } else if (diff < 30) {
-      level = t('insight_moderate');
-      desc = t('insight_moderate_desc').replace('{dim}', dimName);
-    } else {
-      level = t('insight_significant');
-      desc = t('insight_significant_desc').replace('{dim}', dimName);
+  // Collective strengths: shared by 2+ people
+  const collectiveStrengths = Object.entries(strengthMap)
+    .filter(([, names]) => names.length >= 2)
+    .sort((a, b) => b[1].length - a[1].length);
+
+  // Shared blind spots: challenges shared by 2+ people
+  const collectiveRisks = Object.entries(challengeMap)
+    .filter(([, names]) => names.length >= 2)
+    .sort((a, b) => b[1].length - a[1].length);
+
+  // Amortized weaknesses: challenges of one person covered by another's strengths
+  const allStrengthTexts = new Set(Object.keys(strengthMap));
+  const amortized = [];
+  Object.entries(challengeMap).forEach(([challenge, holders]) => {
+    // Check if any other team member has a strength that conceptually offsets this
+    // We check if the challenge text appears as a strength for someone NOT in the holders list
+    if (allStrengthTexts.has(challenge)) {
+      const offsetters = strengthMap[challenge].filter(n => !holders.includes(n));
+      if (offsetters.length > 0) {
+        amortized.push({ challenge, holders, offsetters });
+      }
     }
-    return `<div class="insight-item">
-      <span class="insight-dim" style="color:${DISC_COLORS[d]}">${dimName}</span>
-      <span class="insight-level">${level}</span>
-      <span class="insight-desc">${desc}</span>
-    </div>`;
-  }).join('');
+  });
+
+  // Also find amortized via keyword overlap (fuzzy matching of key terms)
+  const keyTerms = ['detail', 'decisive', 'patient', 'communicat', 'adapt', 'organiz', 'focus', 'listen', 'lead', 'creativ', 'analyt', 'quality', 'reliable', 'consistent'];
+  Object.entries(challengeMap).forEach(([challenge, holders]) => {
+    if (amortized.some(a => a.challenge === challenge)) return;
+    const cLower = challenge.toLowerCase();
+    // Find strengths from non-holders that address this challenge
+    const offsetters = [];
+    Object.entries(strengthMap).forEach(([strength, sNames]) => {
+      const sLower = strength.toLowerCase();
+      const related = keyTerms.some(term => cLower.includes(term) && sLower.includes(term));
+      if (related) {
+        sNames.forEach(n => {
+          if (!holders.includes(n) && !offsetters.includes(n)) offsetters.push(n);
+        });
+      }
+    });
+    if (offsetters.length > 0) {
+      amortized.push({ challenge, holders, offsetters });
+    }
+  });
+
+  const sharedByText = (names) => t('team_shared_by').replace('{names}', names.join(', '));
+
+  const strengthsHtml = collectiveStrengths.length > 0
+    ? collectiveStrengths.map(([s, names]) =>
+      `<div class="team-trait-item team-strength"><span class="team-trait-text">✦ ${s}</span><span class="team-trait-meta">${sharedByText(names)}</span></div>`
+    ).join('')
+    : `<p style="opacity:0.5">${t('team_collective_strengths_desc')}</p>`;
+
+  const risksHtml = collectiveRisks.length > 0
+    ? collectiveRisks.map(([c, names]) =>
+      `<div class="team-trait-item team-risk"><span class="team-trait-text">△ ${c}</span><span class="team-trait-meta">${sharedByText(names)}</span></div>`
+    ).join('')
+    : `<p style="opacity:0.5">${t('team_collective_risks_desc')}</p>`;
+
+  const amortizedHtml = amortized.length > 0
+    ? amortized.map(a =>
+      `<div class="team-trait-item team-amortized"><span class="team-trait-text">↬ ${a.challenge}</span><span class="team-trait-meta">${a.holders.join(', ')} → ${t('team_amortized_desc') ? '' : ''}offset by ${a.offsetters.join(', ')}</span></div>`
+    ).join('')
+    : '';
 
   container.innerHTML = `
-    <div class="similarity-bar">
-      <span>${t('compare_similarity')}: <strong>${similarity}%</strong></span>
-      <div class="score-bar-track"><div class="score-bar-fill" style="width:${similarity}%;background:linear-gradient(90deg,${DISC_COLORS.D},${DISC_COLORS.I})">${similarity}%</div></div>
+    <div class="team-insights-grid">
+      <div class="team-insight-block">
+        <h4>${t('team_collective_strengths')}</h4>
+        <p class="team-insight-desc">${t('team_collective_strengths_desc')}</p>
+        <div class="team-trait-list">${strengthsHtml}</div>
+      </div>
+      <div class="team-insight-block">
+        <h4>${t('team_collective_risks')}</h4>
+        <p class="team-insight-desc">${t('team_collective_risks_desc')}</p>
+        <div class="team-trait-list">${risksHtml}</div>
+      </div>
     </div>
-    <p style="margin:1rem 0;opacity:0.8">${overallMsg}</p>
-    <div class="insights-grid">${dimInsights}</div>`;
+    ${amortized.length > 0 ? `
+    <div class="team-insight-block" style="margin-top:1rem">
+      <h4>${t('team_amortized')}</h4>
+      <p class="team-insight-desc">${t('team_amortized_desc')}</p>
+      <div class="team-trait-list">${amortizedHtml}</div>
+    </div>` : ''}`;
 }
 
 init();
