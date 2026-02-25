@@ -935,7 +935,7 @@ footer {
 
 .wheel-section { text-align: center; margin: 1.5rem 0; }
 .wheel-container { display: flex; justify-content: center; }
-.wheel-container canvas { max-width: 400px; }
+.wheel-container canvas { max-width: 480px; }
 
 .share-section {
   text-align: center;
