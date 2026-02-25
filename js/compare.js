@@ -106,7 +106,7 @@ function renderPage() {
           const memberSummary = team.profiles.map(p => p.name || '?').join(', ');
           const date = new Date(team.updatedAt).toLocaleDateString();
           return `<div class="saved-team-row">
-            <a href="compare.html?p=${team.encoded}&n=${encodeURIComponent(team.name)}" class="saved-team-link">
+            <a href="teams.html?p=${team.encoded}&n=${encodeURIComponent(team.name)}" class="saved-team-link">
               <strong>${team.name}</strong>
               <span class="saved-team-meta">${memberSummary} · ${date}</span>
             </a>

@@ -22,7 +22,7 @@ function renderNav(activePage) {
     <div class="nav-links">
       <a href="index.html" class="${activePage === 'test' ? 'active' : ''}">${t('nav.test')}</a>
       <a href="results.html" class="${activePage === 'results' ? 'active' : ''}">${t('nav.results')}</a>
-      <a href="compare.html" class="${activePage === 'compare' ? 'active' : ''}">${t('nav.compare')}</a>
+      <a href="teams.html" class="${activePage === 'compare' ? 'active' : ''}">${t('nav.compare')}</a>
       <select class="lang-select" id="lang-select">${options}</select>
     </div>
   </nav>`;

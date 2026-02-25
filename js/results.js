@@ -139,7 +139,7 @@ async function renderPage() {
         <button class="btn btn-secondary btn-sm" id="copy-url">${t('btn_copy_link')}</button>
       </div>
       <div class="share-actions">
-        <a href="compare.html" class="btn btn-secondary">${t('results_compare')}</a>
+        <a href="teams.html" class="btn btn-secondary">${t('results_compare')}</a>
         <a href="index.html" class="btn btn-secondary">${t('results_retake')}</a>
       </div>
     </div>`;
