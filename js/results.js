@@ -105,6 +105,12 @@ async function renderPage() {
       <div class="approach-grid">${approachHtml}</div>
     </div>` : ''}
 
+    ${(personality.professions || []).length > 0 ? `
+    <div class="card">
+      <h3>${t('results_professions')}</h3>
+      <div class="professions-list">${personality.professions.map(p => `<span class="profession-tag">${p}</span>`).join('')}</div>
+    </div>` : ''}
+
     <div class="card wheel-section">
       <h3>${t('results_wheel')}</h3>
       <div class="wheel-container"><canvas id="wheel-canvas"></canvas></div>

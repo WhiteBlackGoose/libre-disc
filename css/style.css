@@ -136,6 +136,11 @@ nav .nav-links a.active {
   margin: 0 auto 2rem;
 }
 
+.add-existing-section { margin-top: 1.25rem; text-align: center; }
+.add-existing-section .btn-link { font-size: 0.85rem; color: var(--text-secondary); text-decoration: underline; cursor: pointer; }
+.add-existing-input { display: flex; gap: 0.5rem; justify-content: center; margin-top: 0.75rem; max-width: 420px; margin-left: auto; margin-right: auto; }
+.add-existing-input .input { flex: 1; }
+
 /* ===== BUTTONS ===== */
 .btn {
   display: inline-flex;
@@ -948,6 +953,16 @@ footer {
 }
 .approach-card p { font-size: 0.85rem; line-height: 1.6; }
 
+.professions-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.profession-tag {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  border-radius: 2rem;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
 .wheel-section { text-align: center; margin: 1.5rem 0; }
 .wheel-container { display: flex; justify-content: center; }
 .wheel-container canvas { max-width: 480px; }
@@ -1154,6 +1169,7 @@ footer {
 }
 
 .results-grid canvas { width: 100%; display: block; }
+.results-grid .card { min-width: 0; overflow: hidden; }
 
 /* Progress bar in test */
 .test-container { max-width: 600px; margin: 2rem auto; }

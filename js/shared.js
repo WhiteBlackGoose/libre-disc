@@ -342,6 +342,45 @@ export function drawMultiAxesPlot(canvas, profiles) {
 
 // --- DISC Wheel ---
 
+// Shared inner-circle center: 4 pie quadrants for D, I, S, C
+function drawWheelCenter(ctx, cx, cy, innerR) {
+  const quarter = Math.PI / 2;
+  // Center each quadrant on its pure type: offset by half a segment (π/16) clockwise
+  const pieOffset = -Math.PI * 3 / 4 - quarter / 2 + Math.PI / 16;
+  const dims = ['D', 'I', 'S', 'C'];
+  const r = innerR - 2;
+
+  for (let i = 0; i < 4; i++) {
+    const a1 = pieOffset + i * quarter;
+    const a2 = a1 + quarter;
+    // Filled wedge
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, a1, a2);
+    ctx.closePath();
+    ctx.fillStyle = DISC_COLORS[dims[i]] + '30';
+    ctx.fill();
+    // Divider line
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(a1) * r, cy + Math.sin(a1) * r);
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // Letters centered in each quadrant
+  const letterR = r * 0.5;
+  ctx.font = '700 18px Inter, system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  for (let i = 0; i < 4; i++) {
+    const mid = pieOffset + (i + 0.5) * quarter;
+    ctx.fillStyle = DISC_COLORS[dims[i]];
+    ctx.fillText(dims[i], cx + Math.cos(mid) * letterR, cy + Math.sin(mid) * letterR);
+  }
+}
+
 export async function drawDiscWheel(canvas, activeType, scores, iconImages = {}) {
   const { ctx, w, h } = initCanvas(canvas, 400);
   const cx = w / 2, cy = h / 2;
@@ -414,44 +453,8 @@ export async function drawDiscWheel(canvas, activeType, scores, iconImages = {})
     }
   }
 
-  // Cardinal labels (D top-left, I top-right, S bottom-right, C bottom-left after 45° tilt)
-  const cardinals = [
-    { dim: 'D', angle: -Math.PI * 3 / 4 },
-    { dim: 'I', angle: -Math.PI / 4 },
-    { dim: 'S', angle: Math.PI / 4 },
-    { dim: 'C', angle: Math.PI * 3 / 4 }
-  ];
-  ctx.font = '700 16px Inter, system-ui, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  for (const c of cardinals) {
-    const cr = outerR + 20;
-    const px = cx + Math.cos(c.angle) * cr;
-    const py = cy + Math.sin(c.angle) * cr;
-    ctx.fillStyle = DISC_COLORS[c.dim];
-    ctx.fillText(c.dim, px, py);
-  }
-
-  // Mini radar in center
-  if (scores) {
-    const mr = innerR - 10;
-    // Angles match cardinals: D at -3π/4, I at -π/4, S at π/4, C at 3π/4
-    const radarAngles = { D: -Math.PI * 3 / 4, I: -Math.PI / 4, S: Math.PI / 4, C: Math.PI * 3 / 4 };
-    const dims = ['D', 'I', 'S', 'C'];
-    const pts = dims.map(d => ({
-      x: cx + Math.cos(radarAngles[d]) * (scores[d] / 100) * mr,
-      y: cy + Math.sin(radarAngles[d]) * (scores[d] / 100) * mr
-    }));
-    ctx.beginPath();
-    ctx.moveTo(pts[0].x, pts[0].y);
-    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
-    ctx.closePath();
-    ctx.fillStyle = 'rgba(255,255,255,0.1)';
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.5)';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-  }
+  // Inner circle: dimension arcs + letters
+  drawWheelCenter(ctx, cx, cy, innerR);
 }
 
 export async function drawMultiDiscWheel(canvas, profiles, iconImages = {}) {
@@ -524,21 +527,8 @@ export async function drawMultiDiscWheel(canvas, profiles, iconImages = {}) {
     }
   }
 
-  // Cardinal labels
-  const cardinals = [
-    { dim: 'D', angle: -Math.PI * 3 / 4 },
-    { dim: 'I', angle: -Math.PI / 4 },
-    { dim: 'S', angle: Math.PI / 4 },
-    { dim: 'C', angle: Math.PI * 3 / 4 }
-  ];
-  ctx.font = '700 16px Inter, system-ui, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  for (const c of cardinals) {
-    const cr = outerR + 20;
-    ctx.fillStyle = DISC_COLORS[c.dim];
-    ctx.fillText(c.dim, cx + Math.cos(c.angle) * cr, cy + Math.sin(c.angle) * cr);
-  }
+  // Inner circle: dimension arcs + letters
+  drawWheelCenter(ctx, cx, cy, innerR);
 
   // Build map of type -> list of profile names+colors for labeling
   const typeProfiles = {};

@@ -239,6 +239,42 @@ async function renderResults(profiles) {
   });
 }
 
+function traitWords(text) {
+  const stop = new Set(['a','an','the','and','or','of','to','in','for','with','can','may','is','be','too','not','their','them','they','when','what','how','but','feel','seem','over','very','most','more','less','than']);
+  return text.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/).filter(w => w.length > 2 && !stop.has(w));
+}
+
+function traitSimilar(a, b) {
+  const wa = traitWords(a), wb = traitWords(b);
+  // Check for shared word stems (first 4 chars)
+  const stemsA = new Set(wa.map(w => w.slice(0, 4)));
+  const stemsB = new Set(wb.map(w => w.slice(0, 4)));
+  const shared = [...stemsA].filter(s => stemsB.has(s));
+  return shared.length >= 2 || (shared.length >= 1 && Math.min(stemsA.size, stemsB.size) <= 2);
+}
+
+function clusterTraits(traitMap) {
+  const entries = Object.entries(traitMap);
+  const clusters = []; // { label, names: Set }
+  for (const [text, names] of entries) {
+    let merged = false;
+    for (const cluster of clusters) {
+      if (traitSimilar(cluster.label, text)) {
+        names.forEach(n => cluster.names.add(n));
+        merged = true;
+        break;
+      }
+    }
+    if (!merged) {
+      clusters.push({ label: text, names: new Set(names) });
+    }
+  }
+  return clusters
+    .filter(c => c.names.size >= 2)
+    .map(c => [c.label, [...c.names]])
+    .sort((a, b) => b[1].length - a[1].length);
+}
+
 function renderInsights(profiles) {
   const container = document.getElementById('compare-insights');
   if (profiles.length < 2) return;
@@ -246,69 +282,38 @@ function renderInsights(profiles) {
   // Gather all strengths/challenges across profiles
   const strengthMap = {};  // strength text -> [profile names]
   const challengeMap = {}; // challenge text -> [profile names]
-  const profileStrengths = {}; // name -> Set of strengths
-  const profileChallenges = {}; // name -> Set of challenges
 
   profiles.forEach(p => {
     const personality = getPersonality(p.type);
-    const strengths = personality.strengths || [];
-    const challenges = personality.challenges || [];
-    profileStrengths[p.name] = new Set(strengths);
-    profileChallenges[p.name] = new Set(challenges);
-    strengths.forEach(s => {
+    (personality.strengths || []).forEach(s => {
       if (!strengthMap[s]) strengthMap[s] = [];
       strengthMap[s].push(p.name);
     });
-    challenges.forEach(c => {
+    (personality.challenges || []).forEach(c => {
       if (!challengeMap[c]) challengeMap[c] = [];
       challengeMap[c].push(p.name);
     });
   });
 
-  // Collective strengths: shared by 2+ people
-  const collectiveStrengths = Object.entries(strengthMap)
-    .filter(([, names]) => names.length >= 2)
-    .sort((a, b) => b[1].length - a[1].length);
+  // Cluster similar traits, then find shared ones
+  const collectiveStrengths = clusterTraits(strengthMap);
+  const collectiveRisks = clusterTraits(challengeMap);
 
-  // Shared blind spots: challenges shared by 2+ people
-  const collectiveRisks = Object.entries(challengeMap)
-    .filter(([, names]) => names.length >= 2)
-    .sort((a, b) => b[1].length - a[1].length);
-
-  // Amortized weaknesses: challenges of one person covered by another's strengths
-  const allStrengthTexts = new Set(Object.keys(strengthMap));
+  // Amortized: challenges offset by another's strengths (fuzzy)
   const amortized = [];
-  Object.entries(challengeMap).forEach(([challenge, holders]) => {
-    // Check if any other team member has a strength that conceptually offsets this
-    // We check if the challenge text appears as a strength for someone NOT in the holders list
-    if (allStrengthTexts.has(challenge)) {
-      const offsetters = strengthMap[challenge].filter(n => !holders.includes(n));
-      if (offsetters.length > 0) {
-        amortized.push({ challenge, holders, offsetters });
+  const challengeEntries = Object.entries(challengeMap);
+  const strengthEntries = Object.entries(strengthMap);
+  for (const [challenge, holders] of challengeEntries) {
+    const offsetters = new Set();
+    for (const [strength, sNames] of strengthEntries) {
+      if (traitSimilar(challenge, strength)) {
+        sNames.forEach(n => { if (!holders.includes(n)) offsetters.add(n); });
       }
     }
-  });
-
-  // Also find amortized via keyword overlap (fuzzy matching of key terms)
-  const keyTerms = ['detail', 'decisive', 'patient', 'communicat', 'adapt', 'organiz', 'focus', 'listen', 'lead', 'creativ', 'analyt', 'quality', 'reliable', 'consistent'];
-  Object.entries(challengeMap).forEach(([challenge, holders]) => {
-    if (amortized.some(a => a.challenge === challenge)) return;
-    const cLower = challenge.toLowerCase();
-    // Find strengths from non-holders that address this challenge
-    const offsetters = [];
-    Object.entries(strengthMap).forEach(([strength, sNames]) => {
-      const sLower = strength.toLowerCase();
-      const related = keyTerms.some(term => cLower.includes(term) && sLower.includes(term));
-      if (related) {
-        sNames.forEach(n => {
-          if (!holders.includes(n) && !offsetters.includes(n)) offsetters.push(n);
-        });
-      }
-    });
-    if (offsetters.length > 0) {
-      amortized.push({ challenge, holders, offsetters });
+    if (offsetters.size > 0) {
+      amortized.push({ challenge, holders, offsetters: [...offsetters] });
     }
-  });
+  }
 
   const sharedByText = (names) => t('team_shared_by').replace('{names}', names.join(', '));
 
@@ -326,7 +331,7 @@ function renderInsights(profiles) {
 
   const amortizedHtml = amortized.length > 0
     ? amortized.map(a =>
-      `<div class="team-trait-item team-amortized"><span class="team-trait-text">↬ ${a.challenge}</span><span class="team-trait-meta">${a.holders.join(', ')} → ${t('team_amortized_desc') ? '' : ''}offset by ${a.offsetters.join(', ')}</span></div>`
+      `<div class="team-trait-item team-amortized"><span class="team-trait-text">↬ ${a.challenge}</span><span class="team-trait-meta">${a.holders.join(', ')} → offset by ${a.offsetters.join(', ')}</span></div>`
     ).join('')
     : '';
 

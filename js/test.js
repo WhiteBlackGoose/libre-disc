@@ -1,7 +1,7 @@
 import { initI18n, t, onLocaleChange } from './i18n.js';
 import { renderLayout } from './layout.js';
 import { getQuestions } from './questions.js';
-import { calculateScores, determineType, saveResult, encodeResult } from './shared.js';
+import { calculateScores, determineType, saveResult, encodeResult, decodeResult, extractCode } from './shared.js';
 
 let answers = {};
 let currentQ = 0;
@@ -38,6 +38,13 @@ function renderLanding(content) {
       <h1>${t('hero_title')}</h1>
       <p>${t('hero_subtitle')}</p>
       <button class="btn btn-primary btn-start" id="start-btn">${t('hero_start')}</button>
+      <div class="add-existing-section">
+        <a href="#" class="btn-link" id="add-existing-link">${t('hero_add_existing')}</a>
+        <div class="add-existing-input" id="add-existing-form" style="display:none">
+          <input type="text" class="input" id="existing-code" placeholder="${t('hero_add_existing_placeholder')}">
+          <button class="btn btn-secondary btn-sm" id="existing-submit">${t('hero_add_existing_submit')}</button>
+        </div>
+      </div>
     </div>
     <div class="intro-info">
       <p>${t('intro_text')}</p>
@@ -47,6 +54,23 @@ function renderLanding(content) {
     answers = {};
     currentQ = 0;
     renderQuestion(content);
+  });
+  document.getElementById('add-existing-link').addEventListener('click', e => {
+    e.preventDefault();
+    const form = document.getElementById('add-existing-form');
+    form.style.display = form.style.display === 'none' ? 'flex' : 'none';
+  });
+  document.getElementById('existing-submit').addEventListener('click', () => {
+    const raw = document.getElementById('existing-code').value.trim();
+    if (!raw) return;
+    const code = extractCode(raw);
+    const scores = decodeResult(code);
+    if (scores) {
+      saveResult(scores);
+      window.location.href = 'results.html?r=' + encodeResult(scores);
+    } else {
+      alert(t('hero_add_existing_invalid'));
+    }
   });
 }
 
