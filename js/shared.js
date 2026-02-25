@@ -456,7 +456,7 @@ export async function drawDiscWheel(canvas, activeType, scores, iconImages = {})
 
 export async function drawMultiDiscWheel(canvas, profiles, iconImages = {}) {
   const profileColors = ['#ffffff','#9966ff','#ff6b9d','#4ecdc4','#ffe66d','#ff8a5c','#a8e6cf','#ff4757'];
-  const { ctx, w, h } = initCanvas(canvas, 400);
+  const { ctx, w, h } = initCanvas(canvas, 480);
   const cx = w / 2, cy = h / 2;
   const outerR = 160, innerR = 72;
   const segAngle = (Math.PI * 2) / 16;
@@ -547,35 +547,46 @@ export async function drawMultiDiscWheel(canvas, profiles, iconImages = {}) {
     typeProfiles[p.type].push({ name: p.name, color: profileColors[idx % profileColors.length] });
   });
 
-  // Draw name labels on active segments
+  // Draw name labels outside active segments
   for (let i = 0; i < 16; i++) {
     const typeId = WHEEL_TYPES[i];
     const names = typeProfiles[typeId];
     if (!names) continue;
     const a1 = startOffset + i * segAngle;
     const midAngle = a1 + segAngle / 2;
-    const nameR = (outerR + innerR) / 2 - 16;
     names.forEach((entry, ni) => {
-      const offset = (ni - (names.length - 1) / 2) * 10;
-      const nr = nameR + offset;
-      const nx = cx + Math.cos(midAngle) * nr;
-      const ny = cy + Math.sin(midAngle) * nr;
+      const labelR = outerR + 38 + ni * 14;
+      const nx = cx + Math.cos(midAngle) * labelR;
+      const ny = cy + Math.sin(midAngle) * labelR;
+
+      // Connector line
+      const lineStart = outerR + 2;
+      const lineEnd = labelR - 4;
+      ctx.beginPath();
+      ctx.moveTo(cx + Math.cos(midAngle) * lineStart, cy + Math.sin(midAngle) * lineStart);
+      ctx.lineTo(cx + Math.cos(midAngle) * lineEnd, cy + Math.sin(midAngle) * lineEnd);
+      ctx.strokeStyle = entry.color + '66';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Dot
+      ctx.beginPath();
+      ctx.arc(cx + Math.cos(midAngle) * (outerR + 4), cy + Math.sin(midAngle) * (outerR + 4), 3, 0, Math.PI * 2);
+      ctx.fillStyle = entry.color;
+      ctx.fill();
+
+      // Name
       if (entry.name) {
         ctx.save();
         ctx.translate(nx, ny);
-        ctx.rotate(midAngle + Math.PI / 2);
-        ctx.font = '700 8px Inter, system-ui, sans-serif';
+        // Keep text horizontal for readability
+        ctx.font = '700 9px Inter, system-ui, sans-serif';
         ctx.fillStyle = entry.color;
-        ctx.textAlign = 'center';
+        ctx.textAlign = midAngle > -Math.PI / 2 && midAngle < Math.PI / 2 ? 'left' : 'right';
         ctx.textBaseline = 'middle';
         ctx.fillText(entry.name, 0, 0);
         ctx.restore();
       }
-      // Small dot marker
-      ctx.beginPath();
-      ctx.arc(nx, ny + (entry.name ? 6 : 0), 3, 0, Math.PI * 2);
-      ctx.fillStyle = entry.color;
-      ctx.fill();
     });
   }
 }
