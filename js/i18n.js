@@ -24,11 +24,29 @@ export async function initI18n() {
   await setLocale(code);
 }
 
+function deepMerge(base, override) {
+  const result = { ...base };
+  for (const key of Object.keys(override)) {
+    if (override[key] && typeof override[key] === 'object' && !Array.isArray(override[key])
+        && base[key] && typeof base[key] === 'object' && !Array.isArray(base[key])) {
+      result[key] = deepMerge(base[key], override[key]);
+    } else {
+      result[key] = override[key];
+    }
+  }
+  return result;
+}
+
 export async function setLocale(code) {
   if (!LOCALES[code]) code = 'en';
   try {
     const mod = await import(`./lang/${code}.js`);
-    state.strings = mod.default;
+    if (code === 'en') {
+      state.strings = mod.default;
+    } else {
+      const en = await import('./lang/en.js');
+      state.strings = deepMerge(en.default, mod.default);
+    }
   } catch {
     if (code !== 'en') {
       const en = await import('./lang/en.js');
