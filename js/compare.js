@@ -363,15 +363,14 @@ async function renderResults(profiles) {
 }
 
 function traitWords(text) {
-  const stop = new Set(['a','an','the','and','or','of','to','in','for','with','can','may','is','be','too','not','their','them','they','when','what','how','but','feel','seem','over','very','most','more','less','than']);
-  return text.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/).filter(w => w.length > 2 && !stop.has(w));
+  const stop = new Set(['a','an','the','and','or','of','to','in','for','with','can','may','is','be','too','not','their','them','they','when','what','how','but','feel','seem','over','very','most','more','less','than','high','strong','calm','deep','new','big','low','good','well']);
+  return text.toLowerCase().replace(/[^a-z\s]/g, ' ').split(/\s+/).filter(w => w.length > 2 && !stop.has(w));
 }
 
 function traitSimilar(a, b) {
   const wa = traitWords(a), wb = traitWords(b);
-  // Check for shared word stems (first 4 chars)
-  const stemsA = new Set(wa.map(w => w.slice(0, 4)));
-  const stemsB = new Set(wb.map(w => w.slice(0, 4)));
+  const stemsA = new Set(wa.map(w => w.slice(0, 5)));
+  const stemsB = new Set(wb.map(w => w.slice(0, 5)));
   const shared = [...stemsA].filter(s => stemsB.has(s));
   return shared.length >= 2 || (shared.length >= 1 && Math.min(stemsA.size, stemsB.size) <= 2);
 }
