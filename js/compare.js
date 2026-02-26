@@ -4,8 +4,8 @@ import { getPersonality, DISC_COLORS } from './personalities.js';
 import { TYPE_ICONS } from './icons.js';
 import {
   decodeResult, encodeResult, extractCode, determineType, loadResult,
-  encodeProfiles, decodeProfiles, renderMultiAxisSliders,
-  drawMultiDiamond, drawMultiAxesPlot, drawMultiDiscWheel, preloadIcons
+  encodeProfiles, decodeProfiles, renderMultiAxisSliders, renderMultiScoreAxes,
+  drawMultiAxesPlot, drawMultiDiscWheel, preloadIcons
 } from './shared.js';
 import { drawQR } from './qr.js';
 import { scanQR, parseResultUrl, hasCameraSupport } from './qr-scan.js';
@@ -297,15 +297,9 @@ async function renderResults(profiles) {
       <div id="compare-axes"></div>
     </div>
 
-    <div class="results-grid">
-      <div class="card">
-        <h3>${t('compare_overlay')}</h3>
-        <canvas id="compare-diamond"></canvas>
-      </div>
-      <div class="card">
-        <h3>${t('compare_quadrant')}</h3>
-        <canvas id="compare-quadrant"></canvas>
-      </div>
+    <div class="card">
+      <h3>${t('compare_quadrant')}</h3>
+      <canvas id="compare-quadrant"></canvas>
     </div>
 
     <div class="card">
@@ -322,26 +316,13 @@ async function renderResults(profiles) {
       </div>
     </div>`;
 
-  // Score bars
-  const barsEl = document.getElementById('compare-bars');
-  for (const dim of ['D', 'I', 'S', 'C']) {
-    const bars = profiles.map(p =>
-      `<div class="compare-bar-row">
-        <span class="compare-bar-name" style="color:${p.color}">${p.name}</span>
-        <div class="score-bar-track"><div class="score-bar-fill" style="width:${p.scores[dim]}%;background:${p.color}">${p.scores[dim]}%</div></div>
-      </div>`
-    ).join('');
-    barsEl.innerHTML += `<div class="compare-dim-group">
-      <h4 style="color:${DISC_COLORS[dim]}">${t('dim.' + dim)}</h4>
-      ${bars}
-    </div>`;
-  }
+  // Score axes (DISC dimensions as axis sliders with renormalization)
+  renderMultiScoreAxes(document.getElementById('compare-bars'), profiles);
 
-  // Axes
+  // Behavioral axes
   renderMultiAxisSliders(document.getElementById('compare-axes'), profiles);
 
   // Charts
-  drawMultiDiamond(document.getElementById('compare-diamond'), profiles);
   drawMultiAxesPlot(document.getElementById('compare-quadrant'), profiles);
   await drawMultiDiscWheel(document.getElementById('compare-wheel'), profiles, iconImages);
 

@@ -161,10 +161,39 @@ export function renderMultiAxisSliders(container, profiles) {
   container.innerHTML = AXES.map((a, ai) => {
     const thumbs = profiles.map((p, pi) => {
       const pct = ((allAxes[pi][ai].value + 100) / 200) * 100;
-      return `<div class="axis-thumb" style="left:${pct}%;background:${colors[pi % colors.length]};border-color:${colors[pi % colors.length]}"></div>`;
+      const initials = (p.name || '?').slice(0, 2);
+      return `<div class="axis-thumb axis-thumb-label" style="left:${pct}%;background:${colors[pi % colors.length]};border-color:${colors[pi % colors.length]}" title="${p.name}">${initials}</div>`;
     }).join('');
     return `<div class="axis-slider">
       <div class="axis-labels"><span style="color:${a.colorL}">${t(a.leftKey)}</span><span style="color:${a.colorR}">${t(a.rightKey)}</span></div>
+      <div class="axis-track">${thumbs}</div>
+    </div>`;
+  }).join('');
+}
+
+export function renderMultiScoreAxes(container, profiles) {
+  const colors = ['#ffffff','#9966ff','#ff6b9d','#4ecdc4','#ffe66d','#ff8a5c','#a8e6cf','#ff4757'];
+  const dims = [
+    { key: 'D', color: DISC_COLORS.D },
+    { key: 'I', color: DISC_COLORS.I },
+    { key: 'S', color: DISC_COLORS.S },
+    { key: 'C', color: DISC_COLORS.C }
+  ];
+  container.innerHTML = dims.map(d => {
+    // Find min/max across profiles for this dimension to renormalize
+    const values = profiles.map(p => p.scores[d.key]);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const range = max - min || 1;
+    // Map to 15%-85% of track so dots don't sit at edges
+    const thumbs = profiles.map((p, pi) => {
+      const norm = (p.scores[d.key] - min) / range;
+      const pct = 15 + norm * 70;
+      const initials = (p.name || '?').slice(0, 2);
+      return `<div class="axis-thumb axis-thumb-label" style="left:${pct}%;background:${colors[pi % colors.length]};border-color:${colors[pi % colors.length]}" title="${p.name}: ${p.scores[d.key]}%">${initials}</div>`;
+    }).join('');
+    return `<div class="axis-slider">
+      <div class="axis-labels"><span style="color:${d.color}">${min}%</span><span style="color:${d.color};font-weight:700">${t('dim.' + d.key)}</span><span style="color:${d.color}">${max}%</span></div>
       <div class="axis-track">${thumbs}</div>
     </div>`;
   }).join('');
@@ -195,13 +224,19 @@ export function drawDiamondChart(canvas, scores, scores2 = null, labels = {}) {
   ctx.fillStyle = DISC_COLORS.S; ctx.fillText(t('chart.steadiness'), cx, cy + r + 16);
   ctx.fillStyle = DISC_COLORS.C; ctx.fillText(t('chart.conscientiousness'), cx - r - 10, cy + 4);
 
-  function plotShape(sc, color, alpha) {
-    const pts = [
-      [cx, cy - (sc.D / 100) * r],
-      [cx + (sc.I / 100) * r, cy],
-      [cx, cy + (sc.S / 100) * r],
-      [cx - (sc.C / 100) * r, cy]
+  function diamondPts(sc) {
+    // Normalize from midpoint 50 to spread the shape
+    const norm = v => 0.5 + (v - 50) / 100;
+    return [
+      [cx, cy - norm(sc.D) * r],
+      [cx + norm(sc.I) * r, cy],
+      [cx, cy + norm(sc.S) * r],
+      [cx - norm(sc.C) * r, cy]
     ];
+  }
+
+  function plotShape(sc, color, alpha) {
+    const pts = diamondPts(sc);
     ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
     for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
     ctx.closePath();
@@ -212,12 +247,7 @@ export function drawDiamondChart(canvas, scores, scores2 = null, labels = {}) {
   }
 
   function plotDot(sc, color, size, label) {
-    const pts = [
-      [cx, cy - (sc.D / 100) * r],
-      [cx + (sc.I / 100) * r, cy],
-      [cx, cy + (sc.S / 100) * r],
-      [cx - (sc.C / 100) * r, cy]
-    ];
+    const pts = diamondPts(sc);
     const px = pts.reduce((a, p) => a + p[0], 0) / 4;
     const py = pts.reduce((a, p) => a + p[1], 0) / 4;
     ctx.beginPath(); ctx.arc(px, py, size, 0, Math.PI * 2);
@@ -258,9 +288,10 @@ export function drawMultiDiamond(canvas, profiles) {
   profiles.forEach((p, idx) => {
     const color = colors[idx % colors.length];
     const sc = p.scores;
+    const norm = v => 0.5 + (v - 50) / 100;
     const pts = [
-      [cx, cy - (sc.D / 100) * r], [cx + (sc.I / 100) * r, cy],
-      [cx, cy + (sc.S / 100) * r], [cx - (sc.C / 100) * r, cy]
+      [cx, cy - norm(sc.D) * r], [cx + norm(sc.I) * r, cy],
+      [cx, cy + norm(sc.S) * r], [cx - norm(sc.C) * r, cy]
     ];
     ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
     for (let i = 1; i < 4; i++) ctx.lineTo(pts[i][0], pts[i][1]);
@@ -299,8 +330,14 @@ export function drawAxesPlot(canvas, scores, scores2 = null, labels = {}) {
   ctx.fillStyle = DISC_COLORS.I; ctx.fillText(t('chart.optimistic'), cx + r + 8, cy + 4);
 
   function plotPoint(sc, color, size, label) {
-    const x = cx + ((sc.I - sc.C) / 100) * r;
-    const y = cy - ((sc.D - sc.S) / 100) * r;
+    // Normalize from midpoint 50, apply power curve to spread clustered values
+    const rawX = (sc.I - 50) / 50 - (sc.C - 50) / 50;
+    const rawY = (sc.D - 50) / 50 - (sc.S - 50) / 50;
+    const pow = 0.5;
+    const sx = Math.sign(rawX) * Math.pow(Math.abs(rawX), pow);
+    const sy = Math.sign(rawY) * Math.pow(Math.abs(rawY), pow);
+    const x = cx + Math.max(-1, Math.min(1, sx)) * r;
+    const y = cy - Math.max(-1, Math.min(1, sy)) * r;
     ctx.beginPath(); ctx.arc(x, y, size, 0, Math.PI * 2);
     ctx.fillStyle = color; ctx.fill();
     ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 1; ctx.stroke();
@@ -335,16 +372,21 @@ export function drawMultiAxesPlot(canvas, profiles) {
   profiles.forEach((p, idx) => {
     const color = colors[idx % colors.length];
     const sc = p.scores;
-    const x = cx + ((sc.I - sc.C) / 100) * r;
-    const y = cy - ((sc.D - sc.S) / 100) * r;
-    ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2);
+    const rawX = (sc.I - 50) / 50 - (sc.C - 50) / 50;
+    const rawY = (sc.D - 50) / 50 - (sc.S - 50) / 50;
+    const pow = 0.5;
+    const sx = Math.sign(rawX) * Math.pow(Math.abs(rawX), pow);
+    const sy = Math.sign(rawY) * Math.pow(Math.abs(rawY), pow);
+    const x = cx + Math.max(-1, Math.min(1, sx)) * r;
+    const y = cy - Math.max(-1, Math.min(1, sy)) * r;
+    const dotR = 11;
+    ctx.beginPath(); ctx.arc(x, y, dotR, 0, Math.PI * 2);
     ctx.fillStyle = color; ctx.fill();
-    ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 1; ctx.stroke();
-    if (p.name) {
-      ctx.font = '600 10px Inter, system-ui, sans-serif';
-      ctx.fillStyle = color; ctx.textAlign = 'left';
-      ctx.fillText(p.name, x + 9, y - 4);
-    }
+    ctx.strokeStyle = 'rgba(0,0,0,0.4)'; ctx.lineWidth = 1.5; ctx.stroke();
+    const initials = (p.name || '?').slice(0, 2);
+    ctx.font = '700 9px Inter, system-ui, sans-serif';
+    ctx.fillStyle = '#000'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(initials, x, y);
   });
 }
 
