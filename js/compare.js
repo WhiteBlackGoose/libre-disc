@@ -272,8 +272,9 @@ async function renderResults(profiles) {
   const legend = profiles.map(p => {
     const personality = getPersonality(p.type);
     const resultsLink = `results.html?r=${encodeResult(p.scores)}`;
+    const initials = p.name.substring(0, 2).toUpperCase();
     return `<div class="compare-legend-item">
-      <span class="legend-dot" style="background:${p.color}"></span>
+      <span class="legend-dot" style="background:${p.color}">${initials}</span>
       <strong>${p.name}</strong> — <span style="color:${personality.color}">${p.type}</span> ${personality.name || ''}
       <a href="${resultsLink}" class="btn-link" style="margin-left:0.5rem;font-size:0.75rem;color:var(--color-i);text-decoration:none;">→ ${t('compare_view_results') || 'View Results'}</a>
     </div>`;

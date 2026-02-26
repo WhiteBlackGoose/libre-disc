@@ -1251,10 +1251,15 @@ footer {
   font-size: 0.85rem;
 }
 .legend-dot {
-  width: 12px;
-  height: 12px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   flex-shrink: 0;
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 20px;
+  text-align: center;
+  color: #000;
 }
 .compare-dim-group { margin-bottom: 1rem; }
 .compare-dim-group h4 { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.5rem; }

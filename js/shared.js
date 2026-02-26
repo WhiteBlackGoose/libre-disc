@@ -161,7 +161,7 @@ export function renderMultiAxisSliders(container, profiles) {
   container.innerHTML = AXES.map((a, ai) => {
     const thumbs = profiles.map((p, pi) => {
       const pct = ((allAxes[pi][ai].value + 100) / 200) * 100;
-      const initials = (p.name || '?').slice(0, 2);
+      const initials = (p.name || '?').slice(0, 2).toUpperCase();
       return `<div class="axis-thumb axis-thumb-label" style="left:${pct}%;background:${colors[pi % colors.length]};border-color:${colors[pi % colors.length]}" title="${p.name}">${initials}</div>`;
     }).join('');
     return `<div class="axis-slider">
@@ -189,7 +189,7 @@ export function renderMultiScoreAxes(container, profiles) {
     const thumbs = profiles.map((p, pi) => {
       const norm = (p.scores[d.key] - min) / range;
       const pct = 15 + norm * 70;
-      const initials = (p.name || '?').slice(0, 2);
+      const initials = (p.name || '?').slice(0, 2).toUpperCase();
       return `<div class="axis-thumb axis-thumb-label" style="left:${pct}%;background:${colors[pi % colors.length]};border-color:${colors[pi % colors.length]}" title="${p.name}: ${p.scores[d.key]}%">${initials}</div>`;
     }).join('');
     return `<div class="axis-slider">
@@ -383,7 +383,7 @@ export function drawMultiAxesPlot(canvas, profiles) {
     ctx.beginPath(); ctx.arc(x, y, dotR, 0, Math.PI * 2);
     ctx.fillStyle = color; ctx.fill();
     ctx.strokeStyle = 'rgba(0,0,0,0.4)'; ctx.lineWidth = 1.5; ctx.stroke();
-    const initials = (p.name || '?').slice(0, 2);
+    const initials = (p.name || '?').slice(0, 2).toUpperCase();
     ctx.font = '700 9px Inter, system-ui, sans-serif';
     ctx.fillStyle = '#000'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(initials, x, y);
