@@ -6,6 +6,7 @@ import {
   loadResult, decodeResult, determineType, encodeResult, extractCode,
   renderAxisSliders, drawDiamondChart, drawAxesPlot, drawDiscWheel, preloadIcons
 } from './shared.js';
+import { drawQR } from './qr.js';
 
 let currentScores = null;
 let iconImages = {};
@@ -130,6 +131,7 @@ async function renderPage() {
     <div class="card share-section">
       <h3>${t('results_share_title')}</h3>
       <p>${t('results_share_text')}</p>
+      <div class="share-qr"><canvas id="result-qr"></canvas></div>
       <div class="share-code">
         <code id="result-code">${code}</code>
         <button class="btn btn-secondary btn-sm" id="copy-code">${t('btn_copy')}</button>
@@ -165,6 +167,9 @@ async function renderPage() {
   // Copy handlers
   document.getElementById('copy-code').addEventListener('click', () => copyText(code, 'copy-code'));
   document.getElementById('copy-url').addEventListener('click', () => copyText(shareUrl, 'copy-url'));
+
+  // QR code
+  drawQR(document.getElementById('result-qr'), shareUrl);
 }
 
 function copyText(text, btnId) {
