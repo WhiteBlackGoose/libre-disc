@@ -1,12 +1,45 @@
-// QR code scanner using device camera + BarcodeDetector API
-// Falls back to manual URL paste if BarcodeDetector is unavailable
+// QR code scanner using device camera
+// Uses BarcodeDetector (Chromium) with jsQR fallback (all browsers)
 
 export function hasCameraSupport() {
   return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
 }
 
-export function hasBarcodeDetector() {
-  return typeof BarcodeDetector !== 'undefined';
+let jsQRLoaded = null;
+function loadJsQR() {
+  if (jsQRLoaded) return jsQRLoaded;
+  jsQRLoaded = new Promise((resolve, reject) => {
+    if (typeof window.jsQR === 'function') { resolve(window.jsQR); return; }
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js';
+    s.onload = () => resolve(window.jsQR);
+    s.onerror = () => reject(new Error('Failed to load QR scanner library'));
+    document.head.appendChild(s);
+  });
+  return jsQRLoaded;
+}
+
+function createDetector() {
+  if (typeof BarcodeDetector !== 'undefined') {
+    const bd = new BarcodeDetector({ formats: ['qr_code'] });
+    return {
+      detect: async (canvas, ctx) => {
+        const codes = await bd.detect(canvas);
+        return codes.length > 0 ? codes[0].rawValue : null;
+      }
+    };
+  }
+  return null;
+}
+
+function createJsQRDetector(jsQR) {
+  return {
+    detect: (canvas, ctx) => {
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const result = jsQR(imageData.data, canvas.width, canvas.height);
+      return result ? result.data : null;
+    }
+  };
 }
 
 /**
@@ -15,7 +48,6 @@ export function hasBarcodeDetector() {
  */
 export function scanQR() {
   return new Promise((resolve) => {
-    // Build overlay UI
     const overlay = document.createElement('div');
     overlay.className = 'qr-scan-overlay';
     overlay.innerHTML = `
@@ -51,23 +83,25 @@ export function scanQR() {
       if (e.target === overlay) { cleanup(); resolve(null); }
     });
 
-    // Start camera
-    navigator.mediaDevices.getUserMedia({
+    // Start camera and QR detection in parallel
+    const cameraP = navigator.mediaDevices.getUserMedia({
       video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } }
-    }).then(async (s) => {
+    });
+    const detectorP = (async () => {
+      const native = createDetector();
+      if (native) return native;
+      const jsQR = await loadJsQR();
+      return createJsQRDetector(jsQR);
+    })();
+
+    Promise.all([cameraP, detectorP]).then(async ([s, detector]) => {
       stream = s;
       video.srcObject = s;
       await video.play();
       status.textContent = 'Point at a QR code…';
 
-      if (!hasBarcodeDetector()) {
-        status.textContent = 'BarcodeDetector not supported. Please paste the URL manually.';
-        return;
-      }
-
-      const detector = new BarcodeDetector({ formats: ['qr_code'] });
       const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
       async function tick() {
         if (stopped) return;
@@ -76,12 +110,8 @@ export function scanQR() {
           canvas.height = video.videoHeight;
           ctx.drawImage(video, 0, 0);
           try {
-            const codes = await detector.detect(canvas);
-            if (codes.length > 0) {
-              cleanup();
-              resolve(codes[0].rawValue);
-              return;
-            }
+            const value = await detector.detect(canvas, ctx);
+            if (value) { cleanup(); resolve(value); return; }
           } catch { /* ignore detection errors */ }
         }
         animFrame = requestAnimationFrame(tick);
@@ -89,7 +119,7 @@ export function scanQR() {
       tick();
     }).catch((err) => {
       status.textContent = 'Camera access denied or unavailable.';
-      console.warn('QR scan camera error:', err);
+      console.warn('QR scan error:', err);
     });
   });
 }

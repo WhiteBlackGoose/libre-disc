@@ -8,7 +8,7 @@ import {
   drawMultiDiamond, drawMultiAxesPlot, drawMultiDiscWheel, preloadIcons
 } from './shared.js';
 import { drawQR } from './qr.js';
-import { scanQR, parseResultUrl, hasCameraSupport, hasBarcodeDetector } from './qr-scan.js';
+import { scanQR, parseResultUrl, hasCameraSupport } from './qr-scan.js';
 
 const PROFILE_COLORS = ['#ffffff','#9966ff','#ff6b9d','#4ecdc4','#ffe66d','#ff8a5c','#a8e6cf','#ff4757'];
 const STORAGE_KEY = 'disc_teams';
