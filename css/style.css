@@ -969,7 +969,7 @@ footer {
 
 .wheel-section { text-align: center; margin: 1.5rem 0; }
 .wheel-container { display: flex; justify-content: center; }
-.wheel-container canvas { max-width: 480px; }
+.wheel-container canvas { max-width: 100%; height: auto; }
 
 .export-panel {
   text-align: center;
@@ -1156,6 +1156,22 @@ footer {
   align-items: center;
   justify-content: center;
   z-index: 1;
+  cursor: pointer;
+  text-decoration: none;
+}
+.canvas-dot-tip {
+  display: none;
+  position: absolute;
+  background: var(--bg-card, #1e1e2e);
+  border: 1px solid var(--border, #333);
+  border-radius: 8px;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.8rem;
+  color: #fff;
+  pointer-events: none;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  white-space: nowrap;
 }
 
 /* ===== COMPARE INPUTS (new) ===== */

@@ -5,7 +5,7 @@ import { TYPE_ICONS } from './icons.js';
 import {
   decodeResult, encodeResult, extractCode, determineType, loadResult,
   encodeProfiles, decodeProfiles, renderMultiAxisSliders, renderMultiScoreAxes,
-  drawMultiAxesPlot, drawMultiDiscWheel, preloadIcons
+  drawMultiAxesPlot, drawMultiDiscWheel, preloadIcons, addCanvasDotInteractivity
 } from './shared.js';
 import { drawQR } from './qr.js';
 import { scanQR, parseResultUrl, hasCameraSupport } from './qr-scan.js';
@@ -268,21 +268,7 @@ async function renderResults(profiles) {
   const container = document.getElementById('compare-results');
   if (!container) return;
 
-  // Legend
-  const legend = profiles.map(p => {
-    const personality = getPersonality(p.type);
-    const resultsLink = `results.html?r=${encodeResult(p.scores)}`;
-    const initials = p.name.substring(0, 2).toUpperCase();
-    return `<div class="compare-legend-item">
-      <span class="legend-dot" style="background:${p.color}">${initials}</span>
-      <strong>${p.name}</strong> — <span style="color:${personality.color}">${p.type}</span> ${personality.name || ''}
-      <a href="${resultsLink}" class="btn-link" style="margin-left:0.5rem;font-size:0.75rem;color:var(--color-i);text-decoration:none;">→ ${t('compare_view_results') || 'View Results'}</a>
-    </div>`;
-  }).join('');
-
   container.innerHTML = `
-    <div class="card"><div class="compare-legend">${legend}</div></div>
-
     <div class="card wheel-section">
       <h3>${t('compare_wheel')}</h3>
       <div class="wheel-container"><canvas id="compare-wheel"></canvas></div>
@@ -300,7 +286,7 @@ async function renderResults(profiles) {
 
     <div class="card">
       <h3>${t('compare_quadrant')}</h3>
-      <canvas id="compare-quadrant"></canvas>
+      <div class="wheel-container"><canvas id="compare-quadrant"></canvas></div>
     </div>
 
     <div class="card">
@@ -317,15 +303,22 @@ async function renderResults(profiles) {
       </div>
     </div>`;
 
-  // Score axes (DISC dimensions as axis sliders with renormalization)
+  // Score axes
   renderMultiScoreAxes(document.getElementById('compare-bars'), profiles);
 
   // Behavioral axes
   renderMultiAxisSliders(document.getElementById('compare-axes'), profiles);
 
-  // Charts
-  drawMultiAxesPlot(document.getElementById('compare-quadrant'), profiles);
-  await drawMultiDiscWheel(document.getElementById('compare-wheel'), profiles, iconImages);
+  // Quadrant — responsive size
+  const quadrantCanvas = document.getElementById('compare-quadrant');
+  const availWidth = quadrantCanvas.parentElement.clientWidth - 48;
+  const quadSize = Math.max(280, Math.min(600, availWidth));
+  const quadDots = drawMultiAxesPlot(quadrantCanvas, profiles, quadSize);
+  addCanvasDotInteractivity(quadrantCanvas, quadDots);
+
+  // Wheel
+  const wheelDots = await drawMultiDiscWheel(document.getElementById('compare-wheel'), profiles, iconImages);
+  addCanvasDotInteractivity(document.getElementById('compare-wheel'), wheelDots);
 
   // Insights (pairwise for first two profiles)
   renderInsights(profiles);

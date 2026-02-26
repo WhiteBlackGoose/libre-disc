@@ -104,14 +104,6 @@ export function loadResult() {
   } catch { return null; }
 }
 
-export function saveName(name) {
-  localStorage.setItem('disc_name', name || '');
-}
-
-export function loadName() {
-  return localStorage.getItem('disc_name') || '';
-}
-
 // --- Canvas helpers ---
 
 function initCanvas(canvas, size) {
@@ -144,6 +136,57 @@ export function computeAxes(scores) {
   });
 }
 
+// --- Overlap offset helpers ---
+
+function applyAxisOverlapOffset(items, threshold) {
+  threshold = threshold || 3;
+  if (items.length < 2) return;
+  const sorted = items.slice().sort((a, b) => a.pct - b.pct);
+  const groups = [[sorted[0]]];
+  for (let i = 1; i < sorted.length; i++) {
+    const last = groups[groups.length - 1];
+    if (Math.abs(sorted[i].pct - last[last.length - 1].pct) < threshold) {
+      last.push(sorted[i]);
+    } else {
+      groups.push([sorted[i]]);
+    }
+  }
+  for (const group of groups) {
+    if (group.length <= 1) continue;
+    const step = 9;
+    const total = (group.length - 1) * step;
+    group.forEach((item, i) => { item.yOffset = -total / 2 + i * step; });
+  }
+}
+
+function applyCanvasDotOverlap(dots, dotR) {
+  const threshold = dotR * 1.8;
+  const offset = dotR * 0.66;
+  const visited = new Set();
+  const groups = [];
+  for (let i = 0; i < dots.length; i++) {
+    if (visited.has(i)) continue;
+    const group = [i];
+    visited.add(i);
+    for (let j = i + 1; j < dots.length; j++) {
+      if (visited.has(j)) continue;
+      const dx = dots[j].x - dots[i].x, dy = dots[j].y - dots[i].y;
+      if (Math.sqrt(dx * dx + dy * dy) < threshold) { group.push(j); visited.add(j); }
+    }
+    if (group.length > 1) groups.push(group);
+  }
+  for (const group of groups) {
+    const n = group.length;
+    const gx = group.reduce((s, i) => s + dots[i].x, 0) / n;
+    const gy = group.reduce((s, i) => s + dots[i].y, 0) / n;
+    group.forEach((idx, gi) => {
+      const angle = (2 * Math.PI * gi) / n - Math.PI / 2;
+      dots[idx].x = gx + Math.cos(angle) * offset;
+      dots[idx].y = gy + Math.sin(angle) * offset;
+    });
+  }
+}
+
 export function renderAxisSliders(container, scores) {
   const axes = computeAxes(scores);
   container.innerHTML = axes.map(a => {
@@ -159,16 +202,25 @@ export function renderMultiAxisSliders(container, profiles) {
   const colors = ['#ffffff','#9966ff','#ff6b9d','#4ecdc4','#ffe66d','#ff8a5c','#a8e6cf','#ff4757'];
   const allAxes = profiles.map(p => computeAxes(p.scores));
   container.innerHTML = AXES.map((a, ai) => {
-    const thumbs = profiles.map((p, pi) => {
-      const pct = ((allAxes[pi][ai].value + 100) / 200) * 100;
+    const items = profiles.map((p, pi) => ({
+      pct: ((allAxes[pi][ai].value + 100) / 200) * 100,
+      pi, profile: p, yOffset: 0
+    }));
+    applyAxisOverlapOffset(items);
+    const thumbs = items.map(it => {
+      const p = it.profile;
       const initials = (p.name || '?').slice(0, 2).toUpperCase();
-      return `<div class="axis-thumb axis-thumb-label" style="left:${pct}%;background:${colors[pi % colors.length]};border-color:${colors[pi % colors.length]}" title="${p.name}">${initials}</div>`;
+      const pers = getPersonality(p.type);
+      const href = `results.html?r=${encodeResult(p.scores)}${p.name ? '&name=' + encodeURIComponent(p.name) : ''}`;
+      const topOff = it.yOffset ? `top:calc(50% + ${it.yOffset}px);` : '';
+      return `<a class="axis-thumb axis-thumb-label" href="${href}" style="left:${it.pct}%;${topOff}background:${colors[it.pi % colors.length]};border-color:${colors[it.pi % colors.length]}" data-tip-name="${p.name}" data-tip-type="${p.type}" data-tip-type-name="${pers.name || ''}" data-tip-color="${pers.color}">${initials}</a>`;
     }).join('');
     return `<div class="axis-slider">
       <div class="axis-labels"><span style="color:${a.colorL}">${t(a.leftKey)}</span><span style="color:${a.colorR}">${t(a.rightKey)}</span></div>
       <div class="axis-track">${thumbs}</div>
     </div>`;
   }).join('');
+  attachThumbTooltips(container);
 }
 
 export function renderMultiScoreAxes(container, profiles) {
@@ -180,23 +232,46 @@ export function renderMultiScoreAxes(container, profiles) {
     { key: 'C', color: DISC_COLORS.C }
   ];
   container.innerHTML = dims.map(d => {
-    // Find min/max across profiles for this dimension to renormalize
     const values = profiles.map(p => p.scores[d.key]);
     const min = Math.min(...values);
     const max = Math.max(...values);
     const range = max - min || 1;
-    // Map to 15%-85% of track so dots don't sit at edges
-    const thumbs = profiles.map((p, pi) => {
-      const norm = (p.scores[d.key] - min) / range;
-      const pct = 15 + norm * 70;
+    const items = profiles.map((p, pi) => ({
+      pct: 15 + ((p.scores[d.key] - min) / range) * 70,
+      pi, profile: p, yOffset: 0
+    }));
+    applyAxisOverlapOffset(items);
+    const thumbs = items.map(it => {
+      const p = it.profile;
       const initials = (p.name || '?').slice(0, 2).toUpperCase();
-      return `<div class="axis-thumb axis-thumb-label" style="left:${pct}%;background:${colors[pi % colors.length]};border-color:${colors[pi % colors.length]}" title="${p.name}: ${p.scores[d.key]}%">${initials}</div>`;
+      const pers = getPersonality(p.type);
+      const href = `results.html?r=${encodeResult(p.scores)}${p.name ? '&name=' + encodeURIComponent(p.name) : ''}`;
+      const topOff = it.yOffset ? `top:calc(50% + ${it.yOffset}px);` : '';
+      return `<a class="axis-thumb axis-thumb-label" href="${href}" style="left:${it.pct}%;${topOff}background:${colors[it.pi % colors.length]};border-color:${colors[it.pi % colors.length]}" data-tip-name="${p.name}" data-tip-type="${p.type}" data-tip-type-name="${pers.name || ''}" data-tip-color="${pers.color}">${initials}</a>`;
     }).join('');
     return `<div class="axis-slider">
       <div class="axis-labels"><span style="color:${d.color}">${min}%</span><span style="color:${d.color};font-weight:700">${t('dim.' + d.key)}</span><span style="color:${d.color}">${max}%</span></div>
       <div class="axis-track">${thumbs}</div>
     </div>`;
   }).join('');
+  attachThumbTooltips(container);
+}
+
+function attachThumbTooltips(container) {
+  const tip = getTooltip();
+  container.addEventListener('mouseenter', e => {
+    const el = e.target.closest('.axis-thumb-label[data-tip-name]');
+    if (!el) return;
+    tip.innerHTML = `<strong>${el.dataset.tipName}</strong><br><span style="color:${el.dataset.tipColor}">${el.dataset.tipType}</span> — ${el.dataset.tipTypeName}`;
+    tip.style.display = 'block';
+    const rect = el.getBoundingClientRect();
+    tip.style.left = (rect.right + window.scrollX + 8) + 'px';
+    tip.style.top = (rect.top + window.scrollY - 4) + 'px';
+  }, true);
+  container.addEventListener('mouseleave', e => {
+    const el = e.target.closest('.axis-thumb-label[data-tip-name]');
+    if (el) tip.style.display = 'none';
+  }, true);
 }
 
 // --- Diamond Chart ---
@@ -352,24 +427,27 @@ export function drawAxesPlot(canvas, scores, scores2 = null, labels = {}) {
   plotPoint(scores, '#ffffff', 7, labels.a);
 }
 
-export function drawMultiAxesPlot(canvas, profiles) {
+export function drawMultiAxesPlot(canvas, profiles, size) {
   const colors = ['#ffffff','#9966ff','#ff6b9d','#4ecdc4','#ffe66d','#ff8a5c','#a8e6cf','#ff4757'];
-  const { ctx, w, h } = initCanvas(canvas, 380);
-  const cx = w / 2, cy = h / 2, r = 140;
+  size = size || 380;
+  const { ctx, w, h } = initCanvas(canvas, size);
+  const cx = w / 2, cy = h / 2, r = size * 0.37;
   ctx.clearRect(0, 0, w, h);
 
   ctx.strokeStyle = 'rgba(255,255,255,0.15)';
   ctx.beginPath(); ctx.moveTo(cx - r, cy); ctx.lineTo(cx + r, cy); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(cx, cy - r); ctx.lineTo(cx, cy + r); ctx.stroke();
 
-  ctx.font = '600 11px Inter, system-ui, sans-serif';
+  const fs = Math.max(9, size * 0.029);
+  ctx.font = `600 ${fs}px Inter, system-ui, sans-serif`;
   ctx.textAlign = 'center';
   ctx.fillStyle = DISC_COLORS.D; ctx.fillText(t('chart.dominant'), cx, cy - r - 8);
   ctx.fillStyle = DISC_COLORS.S; ctx.fillText(t('chart.supportive'), cx, cy + r + 16);
   ctx.fillStyle = DISC_COLORS.C; ctx.fillText(t('chart.pragmatic'), cx - r - 8, cy + 4);
   ctx.fillStyle = DISC_COLORS.I; ctx.fillText(t('chart.optimistic'), cx + r + 8, cy + 4);
 
-  profiles.forEach((p, idx) => {
+  const dotR = Math.max(9, size * 0.028);
+  const dots = profiles.map((p, idx) => {
     const color = colors[idx % colors.length];
     const sc = p.scores;
     const rawX = (sc.I - 50) / 50 - (sc.C - 50) / 50;
@@ -377,17 +455,25 @@ export function drawMultiAxesPlot(canvas, profiles) {
     const pow = 0.5;
     const sx = Math.sign(rawX) * Math.pow(Math.abs(rawX), pow);
     const sy = Math.sign(rawY) * Math.pow(Math.abs(rawY), pow);
-    const x = cx + Math.max(-1, Math.min(1, sx)) * r;
-    const y = cy - Math.max(-1, Math.min(1, sy)) * r;
-    const dotR = 11;
-    ctx.beginPath(); ctx.arc(x, y, dotR, 0, Math.PI * 2);
-    ctx.fillStyle = color; ctx.fill();
-    ctx.strokeStyle = 'rgba(0,0,0,0.4)'; ctx.lineWidth = 1.5; ctx.stroke();
-    const initials = (p.name || '?').slice(0, 2).toUpperCase();
-    ctx.font = '700 9px Inter, system-ui, sans-serif';
-    ctx.fillStyle = '#000'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText(initials, x, y);
+    return {
+      x: cx + Math.max(-1, Math.min(1, sx)) * r,
+      y: cy - Math.max(-1, Math.min(1, sy)) * r,
+      r: dotR, color, profile: p
+    };
   });
+  applyCanvasDotOverlap(dots, dotR);
+
+  dots.forEach(d => {
+    ctx.beginPath(); ctx.arc(d.x, d.y, dotR, 0, Math.PI * 2);
+    ctx.fillStyle = d.color; ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.4)'; ctx.lineWidth = 1.5; ctx.stroke();
+    const initials = (d.profile.name || '?').slice(0, 2).toUpperCase();
+    ctx.font = `700 ${Math.max(7, dotR * 0.82)}px Inter, system-ui, sans-serif`;
+    ctx.fillStyle = '#000'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(initials, d.x, d.y);
+  });
+
+  return { dots, size };
 }
 
 // --- DISC Wheel ---
@@ -580,60 +666,98 @@ export async function drawMultiDiscWheel(canvas, profiles, iconImages = {}) {
   // Inner circle: dimension arcs + letters
   drawWheelCenter(ctx, cx, cy, innerR);
 
-  // Build map of type -> list of profile names+colors for labeling
+  // Build map of type -> profiles
   const typeProfiles = {};
   profiles.forEach((p, idx) => {
     if (!typeProfiles[p.type]) typeProfiles[p.type] = [];
-    typeProfiles[p.type].push({ name: p.name, color: profileColors[idx % profileColors.length] });
+    typeProfiles[p.type].push({ ...p, dotColor: profileColors[idx % profileColors.length] });
   });
 
-  // Draw name labels outside active segments
+  // Draw dots with initials outside active segments
+  const dotR = 11;
+  const allDots = [];
   for (let i = 0; i < 16; i++) {
     const typeId = WHEEL_TYPES[i];
-    const names = typeProfiles[typeId];
-    if (!names) continue;
+    const entries = typeProfiles[typeId];
+    if (!entries) continue;
     const a1 = startOffset + i * segAngle;
     const midAngle = a1 + segAngle / 2;
-    names.forEach((entry, ni) => {
-      // Fan out angularly within the segment for multiple people
-      const spread = names.length > 1 ? segAngle * 0.6 : 0;
-      const angleOffset = names.length > 1
-        ? -spread / 2 + (spread / (names.length - 1)) * ni
+    entries.forEach((entry, ni) => {
+      const spread = entries.length > 1 ? segAngle * 0.6 : 0;
+      const angleOffset = entries.length > 1
+        ? -spread / 2 + (spread / (entries.length - 1)) * ni
         : 0;
       const angle = midAngle + angleOffset;
-      const labelR = outerR + 38;
-      const nx = cx + Math.cos(angle) * labelR;
-      const ny = cy + Math.sin(angle) * labelR;
+      const dist = outerR + dotR + 4;
+      const x = cx + Math.cos(angle) * dist;
+      const y = cy + Math.sin(angle) * dist;
 
-      // Connector line
-      const lineStart = outerR + 2;
-      const lineEnd = labelR - 4;
-      ctx.beginPath();
-      ctx.moveTo(cx + Math.cos(angle) * lineStart, cy + Math.sin(angle) * lineStart);
-      ctx.lineTo(cx + Math.cos(angle) * lineEnd, cy + Math.sin(angle) * lineEnd);
-      ctx.strokeStyle = entry.color + '66';
-      ctx.lineWidth = 1;
-      ctx.stroke();
+      ctx.beginPath(); ctx.arc(x, y, dotR, 0, Math.PI * 2);
+      ctx.fillStyle = entry.dotColor; ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,0.4)'; ctx.lineWidth = 1.5; ctx.stroke();
+      const initials = (entry.name || '?').slice(0, 2).toUpperCase();
+      ctx.font = '700 9px Inter, system-ui, sans-serif';
+      ctx.fillStyle = '#000'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(initials, x, y);
 
-      // Dot
-      ctx.beginPath();
-      ctx.arc(cx + Math.cos(angle) * (outerR + 4), cy + Math.sin(angle) * (outerR + 4), 3, 0, Math.PI * 2);
-      ctx.fillStyle = entry.color;
-      ctx.fill();
-
-      // Name
-      if (entry.name) {
-        ctx.save();
-        ctx.translate(nx, ny);
-        ctx.font = '700 9px Inter, system-ui, sans-serif';
-        ctx.fillStyle = entry.color;
-        ctx.textAlign = angle > -Math.PI / 2 && angle < Math.PI / 2 ? 'left' : 'right';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(entry.name, 0, 0);
-        ctx.restore();
-      }
+      allDots.push({ x, y, r: dotR, color: entry.dotColor, profile: entry });
     });
   }
+
+  return { dots: allDots, size: 480 };
+}
+
+// --- Interactive canvas dots ---
+
+let _tooltipEl = null;
+function getTooltip() {
+  if (!_tooltipEl) {
+    _tooltipEl = document.createElement('div');
+    _tooltipEl.className = 'canvas-dot-tip';
+    document.body.appendChild(_tooltipEl);
+  }
+  return _tooltipEl;
+}
+
+export function addCanvasDotInteractivity(canvas, dotData) {
+  const { dots, size } = dotData;
+  const tip = getTooltip();
+  function mousePos(e) {
+    const r = canvas.getBoundingClientRect();
+    return { x: (e.clientX - r.left) / r.width * size, y: (e.clientY - r.top) / r.height * size };
+  }
+  function findHit(mx, my) {
+    for (const d of dots) {
+      const dx = mx - d.x, dy = my - d.y;
+      if (dx * dx + dy * dy <= (d.r + 2) * (d.r + 2)) return d;
+    }
+    return null;
+  }
+  canvas.addEventListener('mousemove', e => {
+    const { x, y } = mousePos(e);
+    const hit = findHit(x, y);
+    if (hit) {
+      canvas.style.cursor = 'pointer';
+      const pers = getPersonality(hit.profile.type);
+      tip.innerHTML = `<strong>${hit.profile.name}</strong><br><span style="color:${pers.color}">${hit.profile.type}</span> — ${pers.name || ''}`;
+      tip.style.display = 'block';
+      tip.style.left = (e.pageX + 14) + 'px';
+      tip.style.top = (e.pageY - 12) + 'px';
+    } else {
+      canvas.style.cursor = '';
+      tip.style.display = 'none';
+    }
+  });
+  canvas.addEventListener('mouseleave', () => { tip.style.display = 'none'; canvas.style.cursor = ''; });
+  canvas.addEventListener('click', e => {
+    const { x, y } = mousePos(e);
+    const hit = findHit(x, y);
+    if (hit) {
+      let url = `results.html?r=${encodeResult(hit.profile.scores)}`;
+      if (hit.profile.name) url += '&name=' + encodeURIComponent(hit.profile.name);
+      window.open(url, '_blank');
+    }
+  });
 }
 
 // --- Icon Preloading ---

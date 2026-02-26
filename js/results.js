@@ -4,8 +4,7 @@ import { getPersonality, DISC_COLORS, getOppositeType } from './personalities.js
 import { TYPE_ICONS } from './icons.js';
 import {
   loadResult, decodeResult, determineType, encodeResult, extractCode,
-  renderAxisSliders, drawDiamondChart, drawAxesPlot, drawDiscWheel, preloadIcons,
-  saveName, loadName
+  renderAxisSliders, drawDiamondChart, drawAxesPlot, drawDiscWheel, preloadIcons
 } from './shared.js';
 import { drawQR } from './qr.js';
 
@@ -28,8 +27,8 @@ async function init() {
   if (!currentScores) {
     currentScores = loadResult();
   }
-  // Name: URL param > localStorage
-  currentName = nameParam || loadName();
+  // Name: URL param only (not persisted)
+  currentName = nameParam || '';
   await renderPage();
 }
 
@@ -84,6 +83,7 @@ async function renderPage() {
 
   content.innerHTML = `
     <div class="result-header">
+      ${currentName ? `<p style="font-size:1.3rem;opacity:0.7;margin-bottom:0.5rem">${currentName}</p>` : ''}
       <div class="type-icon">${iconSvg}</div>
       <div class="type-badge" style="background:${personality.color}20;border:2px solid ${personality.color};color:${personality.color}">${typeId}</div>
       <h1 style="color:${personality.color}">${personality.name || typeId}</h1>
@@ -192,7 +192,6 @@ async function renderPage() {
   const nameInput = document.getElementById('export-name');
   nameInput.addEventListener('input', () => {
     currentName = nameInput.value;
-    saveName(currentName);
     shareUrl = buildShareUrl();
     // Update displayed URL
     document.getElementById('result-url').textContent = shareUrl;
