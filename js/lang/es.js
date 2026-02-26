@@ -142,6 +142,7 @@ export default {
       strengths: ['Liderazgo decisivo', 'Enfoque orientado a metas', 'Prospera bajo presión', 'Comunicación directa', 'Visión global'],
       challenges: ['Puede pasar por alto detalles', 'Puede parecer impaciente', 'Riesgo de imponerse sobre otros', 'Dificultad para delegar'],
       keywords: ['Autoridad', 'Resultados', 'Rapidez', 'Desafío'],
+      professions: ['CEO / Ejecutivo', 'Emprendedor', 'Abogado litigante', 'Oficial militar', 'Cirujano', 'Director de emergencias', 'Director de cine', 'Jefe de policía', 'Corredor de bolsa', 'Director de noticias'],
       approach: {
         giving_feedback: 'Sé directo y conciso. Omite los preámbulos: expón el problema, el impacto y lo que debe cambiar. Respetan la franqueza.',
         criticism: 'Enmárcalo como un desafío a superar, no como un fallo personal. Enfócate en los resultados: «Este enfoque no está produciendo los resultados que necesitamos.»',
@@ -156,6 +157,7 @@ export default {
       strengths: ['Liderazgo carismático', 'Inclinación a la acción', 'Inspira a otros', 'Toma de decisiones rápida', 'Impulso competitivo'],
       challenges: ['Puede avanzar demasiado rápido para otros', 'Puede pasar por alto matices emocionales', 'Impaciente con procesos lentos'],
       keywords: ['Impulso', 'Carisma', 'Acción', 'Momentum'],
+      professions: ['Director de ventas', 'Fundador de startup', 'Director de campaña política', 'Entrenador deportivo', 'Director de desarrollo de negocio', 'Promotor inmobiliario', 'Ejecutivo de publicidad', 'Agente de talentos'],
       approach: {
         giving_feedback: 'Comienza con lo que salió bien y luego pasa rápidamente a lo que necesita mejorar. Mantenlo ágil y orientado al futuro.',
         criticism: 'Desafíalos a hacerlo mejor en lugar de insistir en lo que salió mal. Responden al enfoque aspiracional.',
@@ -170,6 +172,7 @@ export default {
       strengths: ['Liderazgo visionario', 'Comunicación persuasiva', 'Alta energía', 'Tolerancia al riesgo', 'Presencia inspiradora'],
       challenges: ['Puede comprometerse en exceso', 'Puede descuidar detalles', 'Inquieto cuando las cosas se ralentizan', 'Puede dominar las conversaciones'],
       keywords: ['Visión', 'Entusiasmo', 'Influencia', 'Audacia'],
+      professions: ['Capitalista de riesgo', 'Director creativo', 'Productor de eventos', 'Presentador de talk show', 'Estratega de marca', 'Productor de cine', 'Comentarista político', 'Consultor de innovación'],
       approach: {
         giving_feedback: 'Sé entusiasta y orientado al futuro. Acompaña las críticas con una visión de cómo se ve la excelencia.',
         criticism: 'Usa su naturaleza competitiva: «Así es como puedes tener aún más impacto.» Evita la microgestión.',
@@ -184,6 +187,7 @@ export default {
       strengths: ['Motivador nato', 'Genera confianza fácilmente', 'Perspectiva optimista', 'Comunicación persuasiva', 'Energizador del equipo'],
       challenges: ['Puede evitar conversaciones difíciles', 'Puede extenderse demasiado socialmente', 'A veces falta seguimiento'],
       keywords: ['Estímulo', 'Optimismo', 'Conexión', 'Calidez'],
+      professions: ['Orador motivacional', 'Coach de vida', 'Director de relaciones públicas', 'Reclutador de talentos', 'Organizador comunitario', 'Capacitador corporativo', 'Recaudador de fondos', 'Embajador de marca'],
       approach: {
         giving_feedback: 'Comienza con elogios y aprecio genuinos. Enmarca las áreas de mejora como oportunidades de crecimiento, no como fracasos.',
         criticism: 'Sé cálido pero honesto. Necesitan sentirse apreciados incluso durante conversaciones difíciles. Usa lenguaje inclusivo como «nosotros».',
@@ -198,6 +202,7 @@ export default {
       strengths: ['Comunicador excepcional', 'Crea redes de contactos de forma natural', 'Resolución creativa de problemas', 'Entusiasta jugador de equipo', 'Adaptable'],
       challenges: ['Puede faltar seguimiento', 'Puede ser desorganizado', 'Evita el conflicto', 'Se distrae fácilmente'],
       keywords: ['Personas', 'Energía', 'Creatividad', 'Optimismo'],
+      professions: ['Director de marketing', 'Presentador de TV', 'Estratega de redes sociales', 'Organizador de bodas', 'Guía turístico', 'Coordinador de eventos', 'Periodista', 'Operador turístico', 'Locutor de radio'],
       approach: {
         giving_feedback: 'Hazlo conversacional y positivo. Evita la retroalimentación solo escrita — prefieren el diálogo cara a cara.',
         criticism: 'Suavízalo con cuidado. Se toman las críticas de forma personal. Enfócate en el comportamiento, no en el carácter: «El enfoque necesita ajustes.»',
@@ -212,6 +217,7 @@ export default {
       strengths: ['Crea armonía', 'Oyente paciente', 'Leal y solidario', 'Comunicador calmado', 'Confidente de confianza'],
       challenges: ['Evita generar conflictos', 'Puede reprimir sus propias necesidades', 'Lento para actuar ante el cambio'],
       keywords: ['Armonía', 'Lealtad', 'Paciencia', 'Confianza'],
+      professions: ['Profesor', 'Terapeuta', 'Gerente de éxito del cliente', 'Especialista en RRHH', 'Director de ONG', 'Orientador escolar', 'Coach de carrera', 'Terapeuta familiar'],
       approach: {
         giving_feedback: 'Sé amable, específico y tranquilizador. Necesitan saber que la relación está segura antes de escuchar críticas.',
         criticism: 'Enfatiza que los valoras a ellos y la relación. Enmarca los cambios como «mejoremos juntos».',
@@ -226,6 +232,7 @@ export default {
       strengths: ['Mediador nato', 'Inteligencia emocional', 'Líder inclusivo', 'Paciente y cálido', 'Construye consenso'],
       challenges: ['Puede ser indeciso', 'Puede priorizar la paz sobre el progreso', 'Reacio a confrontar', 'Evita decisiones difíciles'],
       keywords: ['Paz', 'Inclusión', 'Empatía', 'Estabilidad'],
+      professions: ['Trabajador social', 'Facilitador de equipos', 'Mediador', 'Consejero pastoral', 'Terapeuta ocupacional', 'Psicólogo escolar', 'Especialista en resolución de conflictos', 'Trabajador de salud comunitaria', 'Consejero de rehabilitación'],
       approach: {
         giving_feedback: 'Sé empático y colaborativo. Enmarca la retroalimentación como un objetivo compartido, no como una directiva de arriba hacia abajo.',
         criticism: 'Sé muy delicado. Internalizan las críticas profundamente. Primero afirma la relación, luego aborda el tema.',
@@ -240,6 +247,7 @@ export default {
       strengths: ['Jugador de equipo confiable', 'Cálido y accesible', 'Rendimiento constante', 'Gran capacidad de seguimiento', 'Calmado bajo presión'],
       challenges: ['Puede resistirse al cambio', 'Puede ser demasiado complaciente', 'Evita destacar sus propias contribuciones'],
       keywords: ['Confiabilidad', 'Calidez', 'Servicio', 'Constancia'],
+      professions: ['Enfermero', 'Maestro de primaria', 'Director de hostelería', 'Defensor del paciente', 'Veterinario', 'Director de guardería', 'Fisioterapeuta', 'Coordinador de servicios sociales'],
       approach: {
         giving_feedback: 'Sé amable y específico. Reconoce su esfuerzo antes de sugerir cambios. Necesitan sentirse apreciados.',
         criticism: 'Enmárcalo con delicadeza y de forma constructiva. Muestra cómo el cambio ayudará al equipo: «Esto facilitaría las cosas para todos.»',
@@ -254,6 +262,7 @@ export default {
       strengths: ['Paciencia excepcional', 'Confiable y constante', 'Miembro leal del equipo', 'Temperamento calmado', 'Fuerte ética de trabajo'],
       challenges: ['Se resiste al cambio', 'Puede ser demasiado pasivo', 'Dificultad para decir que no', 'Lento para adaptarse'],
       keywords: ['Paciencia', 'Lealtad', 'Estabilidad', 'Confiabilidad'],
+      professions: ['Asistente administrativo', 'Bibliotecario', 'Médico de familia', 'Consejero', 'Gerente de oficina', 'Archivista', 'Cajero de banco', 'Agente de seguros', 'Asistente ejecutivo', 'Contable'],
       approach: {
         giving_feedback: 'Sé paciente y estructurado. Dales tiempo para procesar. Un seguimiento escrito después de una conversación verbal funciona bien.',
         criticism: 'Sé honesto pero compasivo. Temen la disrupción y el rechazo: «Tu trabajo importa — aquí te explico cómo hacerlo aún mejor.»',
@@ -268,6 +277,7 @@ export default {
       strengths: ['Conocimiento profundo', 'Atención meticulosa al detalle', 'Confiable y minucioso', 'Calmado y enfocado', 'Orientado a la calidad'],
       challenges: ['Puede resistirse a nuevos métodos', 'Puede ser excesivamente cauteloso', 'Lento para compartir opiniones', 'Aversión al riesgo'],
       keywords: ['Expertise', 'Precisión', 'Confiabilidad', 'Profundidad'],
+      professions: ['Farmacéutico', 'Técnico de laboratorio', 'Redactor técnico', 'Administrador de bases de datos', 'Higienista dental', 'Codificador médico', 'Técnico veterinario', 'Administrador de redes', 'Tecnólogo en radiología'],
       approach: {
         giving_feedback: 'Sé específico y basado en datos. Respalda tus puntos con evidencia. También respetan la minuciosidad en la retroalimentación.',
         criticism: 'Preséntalo como una oportunidad de mejora de calidad. Usa datos, no sentimientos: «Los datos sugieren un enfoque diferente.»',
@@ -282,6 +292,7 @@ export default {
       strengths: ['Pensamiento sistemático', 'Enfocado en la calidad', 'Análisis paciente', 'Confiable y minucioso', 'Estándares consistentes'],
       challenges: ['Parálisis por análisis', 'Resistente al cambio', 'Puede parecer inflexible', 'Puede ser excesivamente crítico'],
       keywords: ['Análisis', 'Estándares', 'Minuciosidad', 'Método'],
+      professions: ['Contador', 'Oficial de cumplimiento', 'Especialista en registros médicos', 'Inspector de calidad', 'Suscriptor de seguros', 'Preparador de impuestos', 'Coordinador de investigación clínica', 'Especialista en nóminas', 'Inspector de edificaciones'],
       approach: {
         giving_feedback: 'Sé estructurado y lógico. Presenta un caso claro con evidencia. Aprecian la retroalimentación sistemática.',
         criticism: 'Enfócate en la mejora de procesos, no en la crítica personal. Usa datos y ejemplos. Dales tiempo para analizar y responder.',
@@ -296,6 +307,7 @@ export default {
       strengths: ['Control de calidad excepcional', 'Análisis exhaustivo', 'Comunicación precisa', 'Fuerte pensamiento crítico', 'Atención al detalle'],
       challenges: ['El perfeccionismo puede ralentizar el progreso', 'Puede parecer frío o crítico', 'Piensa demasiado las decisiones', 'Dificultad para aceptar lo suficientemente bueno'],
       keywords: ['Precisión', 'Calidad', 'Análisis', 'Estándares'],
+      professions: ['Auditor', 'Analista de datos', 'Especialista en asuntos regulatorios', 'Ingeniero de seguridad', 'Paralegal', 'Estadístico', 'Editor técnico', 'Contador fiscal', 'Actuario'],
       approach: {
         giving_feedback: 'Sé preciso, factual y sin emociones. Respetan la honestidad intelectual por encima de la diplomacia.',
         criticism: 'Enfócate en la lógica y la evidencia. Pueden manejar retroalimentación dura si está bien fundamentada: «Esto es lo que muestran los datos.»',
@@ -310,6 +322,7 @@ export default {
       strengths: ['Pensamiento analítico', 'Orientado al detalle', 'Enfocado en la calidad', 'Enfoque sistemático', 'Evaluación crítica'],
       challenges: ['Puede ser excesivamente cauteloso', 'Puede parecer distante', 'Parálisis por análisis', 'Dificultad con la ambigüedad'],
       keywords: ['Lógica', 'Precisión', 'Sistemas', 'Calidad'],
+      professions: ['Ingeniero de software', 'Científico investigador', 'Analista financiero', 'Arquitecto', 'Analista forense', 'Científico de datos', 'Ingeniero aeroespacial', 'Bioestadístico', 'Economista'],
       approach: {
         giving_feedback: 'Sé específico, factual y estructurado. Proporciona documentación escrita que puedan revisar. Evita apelaciones emocionales.',
         criticism: 'Presenta evidencia y razonamiento lógico. Enmárcalo como un problema a resolver: «El enfoque actual tiene estas deficiencias.»',
@@ -324,6 +337,7 @@ export default {
       strengths: ['Pensamiento estratégico', 'Análisis decisivo', 'Precisión orientada a metas', 'Resolución independiente de problemas', 'Altos estándares'],
       challenges: ['Puede ser intimidante', 'Impaciente con la ineficiencia', 'Puede parecer frío', 'Dificultad con la charla casual'],
       keywords: ['Estrategia', 'Precisión', 'Independencia', 'Eficiencia'],
+      professions: ['Banquero de inversiones', 'Arquitecto de sistemas', 'Abogado de patentes', 'Director de tecnología', 'Analista de operaciones', 'Analista cuantitativo', 'Arquitecto de ciberseguridad', 'Abogado corporativo'],
       approach: {
         giving_feedback: 'Sé conciso, lógico y enfocado en resultados. Quieren saber qué corregir y cómo mejorar — omite los sentimientos.',
         criticism: 'Enmárcalo como una brecha estratégica: «Este enfoque tiene un fallo en la lógica — esto es lo que sugeriría.» Sé directo pero factual.',
@@ -338,6 +352,7 @@ export default {
       strengths: ['Visión estratégica', 'Liderazgo analítico', 'Decisivo y a la vez minucioso', 'Altas expectativas', 'Pensamiento de sistemas'],
       challenges: ['El perfeccionismo se encuentra con la impaciencia', 'Puede ser exigente', 'Puede alejar a otros con su franqueza', 'Dificultades para delegar'],
       keywords: ['Arquitectura', 'Estrategia', 'Estándares', 'Mando'],
+      professions: ['Consultor de gestión', 'Planificador estratégico', 'Gerente de ingeniería', 'Analista de políticas', 'Director de riesgos', 'Director de programa', 'Director financiero', 'Urbanista', 'Administrador de salud'],
       approach: {
         giving_feedback: 'Sé directo y bien fundamentado. Respetan la honestidad respaldada por evidencia. Evita lo superfluo.',
         criticism: 'Cuestiona su lógica, no su carácter. Presenta enfoques alternativos con datos que los respalden.',
@@ -352,6 +367,7 @@ export default {
       strengths: ['Presencia de mando', 'Capacidad de decisión estratégica', 'Altos estándares', 'Análisis orientado a resultados', 'Enfocado en la eficiencia'],
       challenges: ['Puede ser excesivamente exigente', 'Puede intimidar a otros', 'Impaciente con la búsqueda de consenso', 'Dificultad para mostrarse vulnerable'],
       keywords: ['Mando', 'Eficiencia', 'Determinación', 'Control'],
+      professions: ['Director de operaciones', 'Juez', 'Controlador de tráfico aéreo', 'Director de logística', 'Ingeniero industrial', 'Director de obra', 'Director de planta', 'Director de cadena de suministro', 'Director de prisión'],
       approach: {
         giving_feedback: 'Sé directo, breve y basado en hechos. Quieren retroalimentación accionable, no procesamiento emocional.',
         criticism: 'Preséntalo como un problema de eficiencia: «Esto es lo que nos está frenando y cómo solucionarlo.» Sé franco y constructivo.',

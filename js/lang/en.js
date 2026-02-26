@@ -142,7 +142,7 @@ export default {
       strengths: ['Decisive leadership', 'Goal-oriented focus', 'Thrives under pressure', 'Direct communication', 'Big-picture thinking'],
       challenges: ['Can overlook details', 'May seem impatient', 'Risk of steamrolling others', 'Difficulty delegating'],
       keywords: ['Authority', 'Results', 'Speed', 'Challenge'],
-      professions: ['CEO / Executive', 'Entrepreneur', 'Trial Lawyer', 'Military Officer', 'Surgeon', 'Emergency Manager'],
+      professions: ['CEO / Executive', 'Entrepreneur', 'Trial Lawyer', 'Military Officer', 'Surgeon', 'Emergency Manager', 'Film Director', 'Police Chief', 'Stockbroker', 'News Director'],
       approach: {
         giving_feedback: 'Be direct and concise. Skip the preamble — state the issue, the impact, and what needs to change. They respect bluntness.',
         criticism: "Frame it as a challenge to overcome, not a personal failing. Focus on results: 'This approach isn't producing the outcomes we need.'",
@@ -157,7 +157,7 @@ export default {
       strengths: ['Charismatic leadership', 'Bias for action', 'Inspires others', 'Quick decision-making', 'Competitive drive'],
       challenges: ['May move too fast for others', 'Can overlook emotional nuance', 'Impatient with slow processes'],
       keywords: ['Drive', 'Charisma', 'Action', 'Momentum'],
-      professions: ['Sales Director', 'Startup Founder', 'Political Campaign Manager', 'Sports Coach', 'Business Development Lead'],
+      professions: ['Sales Director', 'Startup Founder', 'Political Campaign Manager', 'Sports Coach', 'Business Development Lead', 'Real Estate Developer', 'Advertising Executive', 'Talent Agent'],
       approach: {
         giving_feedback: 'Lead with what went well, then pivot quickly to what needs improving. Keep it fast and forward-looking.',
         criticism: 'Challenge them to do better rather than dwelling on what went wrong. They respond to aspirational framing.',
@@ -172,7 +172,7 @@ export default {
       strengths: ['Visionary leadership', 'Persuasive communication', 'High energy', 'Risk-tolerant', 'Inspiring presence'],
       challenges: ['May overcommit', 'Can neglect details', 'Restless when things slow down', 'May dominate conversations'],
       keywords: ['Vision', 'Enthusiasm', 'Influence', 'Boldness'],
-      professions: ['Venture Capitalist', 'Creative Director', 'Event Producer', 'Talk Show Host', 'Brand Strategist'],
+      professions: ['Venture Capitalist', 'Creative Director', 'Event Producer', 'Talk Show Host', 'Brand Strategist', 'Film Producer', 'Political Commentator', 'Innovation Consultant'],
       approach: {
         giving_feedback: 'Be enthusiastic and future-focused. Pair critiques with a vision of what great looks like.',
         criticism: "Use their competitive nature: 'Here's how you can be even more impactful.' Avoid micromanaging.",
@@ -187,7 +187,7 @@ export default {
       strengths: ['Natural encourager', 'Builds rapport easily', 'Optimistic outlook', 'Persuasive communication', 'Team energizer'],
       challenges: ['May avoid tough conversations', 'Can overextend socially', 'Sometimes lacks follow-through'],
       keywords: ['Encouragement', 'Optimism', 'Connection', 'Warmth'],
-      professions: ['Motivational Speaker', 'Life Coach', 'PR Manager', 'Talent Recruiter', 'Community Organizer'],
+      professions: ['Motivational Speaker', 'Life Coach', 'PR Manager', 'Talent Recruiter', 'Community Organizer', 'Corporate Trainer', 'Fundraiser', 'Brand Ambassador'],
       approach: {
         giving_feedback: 'Start with genuine praise and appreciation. Frame improvement areas as opportunities to grow, not failures.',
         criticism: 'Be warm but honest. They need to feel liked even during tough conversations. Use "we" language.',
@@ -202,7 +202,7 @@ export default {
       strengths: ['Outstanding communicator', 'Builds networks naturally', 'Creative problem-solving', 'Enthusiastic team player', 'Adaptable'],
       challenges: ['May lack follow-through', 'Can be disorganized', 'Avoids conflict', 'Easily distracted'],
       keywords: ['People', 'Energy', 'Creativity', 'Optimism'],
-      professions: ['Marketing Manager', 'TV Presenter', 'Social Media Strategist', 'Wedding Planner', 'Travel Guide'],
+      professions: ['Marketing Manager', 'TV Presenter', 'Social Media Strategist', 'Wedding Planner', 'Travel Guide', 'Event Coordinator', 'Journalist', 'Tour Operator', 'Radio Host'],
       approach: {
         giving_feedback: 'Make it conversational and positive. Avoid written-only feedback — they prefer face-to-face dialogue.',
         criticism: "Sandwich it gently. They take criticism personally. Focus on behavior, not character: 'The approach needs adjustment.'",
@@ -217,7 +217,7 @@ export default {
       strengths: ['Creates harmony', 'Patient listener', 'Loyal and supportive', 'Calm communicator', 'Trusted confidant'],
       challenges: ['Avoids rocking the boat', 'May suppress own needs', 'Slow to act on change'],
       keywords: ['Harmony', 'Loyalty', 'Patience', 'Trust'],
-      professions: ['Teacher', 'Therapist', 'Customer Success Manager', 'HR Specialist', 'Nonprofit Director'],
+      professions: ['Teacher', 'Therapist', 'Customer Success Manager', 'HR Specialist', 'Nonprofit Director', 'School Counselor', 'Career Coach', 'Family Therapist'],
       approach: {
         giving_feedback: 'Be gentle, specific, and reassuring. They need to know the relationship is secure before hearing criticism.',
         criticism: "Emphasize that you value them and the relationship. Frame changes as 'let's improve together.'",
@@ -232,7 +232,7 @@ export default {
       strengths: ['Natural mediator', 'Emotionally intelligent', 'Inclusive leader', 'Patient and warm', 'Builds consensus'],
       challenges: ['Can be indecisive', 'May prioritize peace over progress', 'Reluctant to push back', 'Avoids hard decisions'],
       keywords: ['Peace', 'Inclusion', 'Empathy', 'Stability'],
-      professions: ['Social Worker', 'Team Facilitator', 'Mediator', 'Pastoral Counselor', 'Occupational Therapist'],
+      professions: ['Social Worker', 'Team Facilitator', 'Mediator', 'Pastoral Counselor', 'Occupational Therapist', 'School Psychologist', 'Conflict Resolution Specialist', 'Community Health Worker', 'Rehabilitation Counselor'],
       approach: {
         giving_feedback: 'Be empathetic and collaborative. Frame feedback as a shared goal, not a top-down directive.',
         criticism: 'Be very gentle. They internalize criticism deeply. Affirm the relationship first, then discuss the issue.',
@@ -247,7 +247,7 @@ export default {
       strengths: ['Reliable team player', 'Warm and approachable', 'Consistent performer', 'Strong follow-through', 'Calm under pressure'],
       challenges: ['May resist change', 'Can be too accommodating', 'Avoids spotlighting own contributions'],
       keywords: ['Reliability', 'Warmth', 'Service', 'Consistency'],
-      professions: ['Nurse', 'Elementary Teacher', 'Hospitality Manager', 'Patient Advocate', 'Veterinarian'],
+      professions: ['Nurse', 'Elementary Teacher', 'Hospitality Manager', 'Patient Advocate', 'Veterinarian', 'Daycare Director', 'Physical Therapist', 'Social Services Coordinator'],
       approach: {
         giving_feedback: 'Be kind and specific. Acknowledge their effort before suggesting changes. They need to feel appreciated.',
         criticism: "Frame it gently and constructively. Show how changing will help the team: 'This would make things easier for everyone.'",
@@ -262,7 +262,7 @@ export default {
       strengths: ['Exceptional patience', 'Reliable and consistent', 'Loyal team member', 'Calm demeanor', 'Strong work ethic'],
       challenges: ['Resists change', 'May be too passive', 'Difficulty saying no', 'Slow to adapt'],
       keywords: ['Patience', 'Loyalty', 'Stability', 'Dependability'],
-      professions: ['Administrative Assistant', 'Librarian', 'Family Physician', 'Counselor', 'Office Manager', 'Archivist'],
+      professions: ['Administrative Assistant', 'Librarian', 'Family Physician', 'Counselor', 'Office Manager', 'Archivist', 'Bank Teller', 'Insurance Agent', 'Executive Assistant', 'Bookkeeper'],
       approach: {
         giving_feedback: 'Be patient and structured. Give them time to process. Written follow-up after a verbal conversation works well.',
         criticism: "Be honest but compassionate. They fear disruption and rejection: 'Your work matters — here's how to make it even better.'",
@@ -277,7 +277,7 @@ export default {
       strengths: ['Deep expertise', 'Meticulous attention to detail', 'Reliable and thorough', 'Calm and focused', 'Quality-driven'],
       challenges: ['May resist new methods', 'Can be overly cautious', 'Slow to share opinions', 'Risk-averse'],
       keywords: ['Expertise', 'Precision', 'Reliability', 'Depth'],
-      professions: ['Pharmacist', 'Lab Technician', 'Technical Writer', 'Database Administrator', 'Dental Hygienist'],
+      professions: ['Pharmacist', 'Lab Technician', 'Technical Writer', 'Database Administrator', 'Dental Hygienist', 'Medical Coder', 'Veterinary Technician', 'Network Administrator', 'Radiologic Technologist'],
       approach: {
         giving_feedback: 'Be specific and data-driven. Back up your points with evidence. They respect thoroughness in feedback too.',
         criticism: "Present it as a quality improvement opportunity. Use facts, not feelings: 'The data suggests a different approach.'",
@@ -292,7 +292,7 @@ export default {
       strengths: ['Systematic thinking', 'Quality-focused', 'Patient analysis', 'Reliable and thorough', 'Consistent standards'],
       challenges: ['Analysis paralysis', 'Resistant to change', 'May seem inflexible', 'Can be overly critical'],
       keywords: ['Analysis', 'Standards', 'Thoroughness', 'Method'],
-      professions: ['Accountant', 'Compliance Officer', 'Medical Records Specialist', 'Quality Inspector', 'Insurance Underwriter'],
+      professions: ['Accountant', 'Compliance Officer', 'Medical Records Specialist', 'Quality Inspector', 'Insurance Underwriter', 'Tax Preparer', 'Clinical Research Coordinator', 'Payroll Specialist', 'Building Inspector'],
       approach: {
         giving_feedback: 'Be structured and logical. Present a clear case with evidence. They appreciate systematic feedback.',
         criticism: 'Focus on process improvement, not personal critique. Use data and examples. Give them time to analyze and respond.',
@@ -307,7 +307,7 @@ export default {
       strengths: ['Exceptional quality control', 'Thorough analysis', 'Precise communication', 'Strong critical thinking', 'Attention to detail'],
       challenges: ['Perfectionism can slow progress', 'May seem cold or critical', 'Overthinks decisions', 'Difficulty accepting good enough'],
       keywords: ['Precision', 'Quality', 'Analysis', 'Standards'],
-      professions: ['Auditor', 'Data Analyst', 'Regulatory Affairs Specialist', 'Safety Engineer', 'Paralegal'],
+      professions: ['Auditor', 'Data Analyst', 'Regulatory Affairs Specialist', 'Safety Engineer', 'Paralegal', 'Statistician', 'Technical Editor', 'Tax Accountant', 'Actuary'],
       approach: {
         giving_feedback: 'Be precise, factual, and unemotional. They respect intellectual honesty over diplomacy.',
         criticism: "Focus on logic and evidence. They can handle tough feedback if it's well-reasoned: 'Here's what the data shows.'",
@@ -322,7 +322,7 @@ export default {
       strengths: ['Analytical thinking', 'Detail-oriented', 'Quality-focused', 'Systematic approach', 'Critical evaluation'],
       challenges: ['Can be overly cautious', 'May seem distant', 'Paralysis by analysis', 'Difficulty with ambiguity'],
       keywords: ['Logic', 'Accuracy', 'Systems', 'Quality'],
-      professions: ['Software Engineer', 'Research Scientist', 'Financial Analyst', 'Architect', 'Forensic Analyst'],
+      professions: ['Software Engineer', 'Research Scientist', 'Financial Analyst', 'Architect', 'Forensic Analyst', 'Data Scientist', 'Aerospace Engineer', 'Biostatistician', 'Economist'],
       approach: {
         giving_feedback: 'Be specific, factual, and structured. Provide written documentation they can review. Avoid emotional appeals.',
         criticism: "Present evidence and logical reasoning. Frame it as a problem to solve: 'The current approach has these gaps.'",
@@ -337,7 +337,7 @@ export default {
       strengths: ['Strategic thinking', 'Decisive analysis', 'Goal-oriented precision', 'Independent problem-solving', 'High standards'],
       challenges: ['Can be intimidating', 'Impatient with inefficiency', 'May seem cold', 'Difficulty with small talk'],
       keywords: ['Strategy', 'Precision', 'Independence', 'Efficiency'],
-      professions: ['Investment Banker', 'Systems Architect', 'Patent Attorney', 'Chief Technology Officer', 'Operations Analyst'],
+      professions: ['Investment Banker', 'Systems Architect', 'Patent Attorney', 'Chief Technology Officer', 'Operations Analyst', 'Quantitative Analyst', 'Cybersecurity Architect', 'Corporate Lawyer'],
       approach: {
         giving_feedback: 'Be concise, logical, and results-focused. They want to know what to fix and how to improve — skip the feelings.',
         criticism: "Frame it as a strategic gap: 'This approach has a flaw in the logic — here's what I'd suggest.' Be direct but factual.",
@@ -352,7 +352,7 @@ export default {
       strengths: ['Strategic vision', 'Analytical leadership', 'Decisive yet thorough', 'High expectations', 'Systems thinking'],
       challenges: ['Perfectionism meets impatience', 'Can be demanding', 'May alienate with bluntness', 'Struggles with delegation'],
       keywords: ['Architecture', 'Strategy', 'Standards', 'Command'],
-      professions: ['Management Consultant', 'Strategic Planner', 'Engineering Manager', 'Policy Analyst', 'Risk Manager'],
+      professions: ['Management Consultant', 'Strategic Planner', 'Engineering Manager', 'Policy Analyst', 'Risk Manager', 'Program Director', 'Chief Financial Officer', 'Urban Planner', 'Healthcare Administrator'],
       approach: {
         giving_feedback: 'Be direct and well-reasoned. They respect honesty backed by evidence. Avoid fluff.',
         criticism: 'Challenge their logic, not their character. Present alternative approaches with data to support them.',
@@ -367,7 +367,7 @@ export default {
       strengths: ['Commanding presence', 'Strategic decisiveness', 'High standards', 'Results-driven analysis', 'Efficiency-focused'],
       challenges: ['Can be overly demanding', 'May intimidate others', 'Impatient with consensus-building', 'Difficulty showing vulnerability'],
       keywords: ['Command', 'Efficiency', 'Determination', 'Control'],
-      professions: ['Chief Operations Officer', 'Judge', 'Air Traffic Controller', 'Logistics Director', 'Industrial Engineer'],
+      professions: ['Chief Operations Officer', 'Judge', 'Air Traffic Controller', 'Logistics Director', 'Industrial Engineer', 'Construction Manager', 'Plant Manager', 'Supply Chain Director', 'Prison Warden'],
       approach: {
         giving_feedback: 'Be direct, brief, and fact-based. They want actionable feedback, not emotional processing.',
         criticism: "Present it as an efficiency issue: 'Here's what's slowing us down and how to fix it.' Be blunt and constructive.",

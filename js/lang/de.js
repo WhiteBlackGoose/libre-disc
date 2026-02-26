@@ -142,6 +142,7 @@ export default {
       strengths: ['Entschlossene Führung', 'Zielorientierter Fokus', 'Blüht unter Druck auf', 'Direkte Kommunikation', 'Denken im großen Ganzen'],
       challenges: ['Kann Details übersehen', 'Kann ungeduldig wirken', 'Gefahr, andere zu überfahren', 'Schwierigkeiten beim Delegieren'],
       keywords: ['Autorität', 'Ergebnisse', 'Tempo', 'Herausforderung'],
+      professions: ['Geschäftsführer / Vorstand', 'Unternehmer', 'Prozessanwalt', 'Militäroffizier', 'Chirurg', 'Katastrophenschutzleiter', 'Filmregisseur', 'Polizeipräsident', 'Börsenmakler', 'Nachrichtenredakteur'],
       approach: {
         giving_feedback: 'Sei direkt und prägnant. Überspringe die Einleitung — benenne das Problem, die Auswirkung und was sich ändern muss. Sie respektieren Klartext.',
         criticism: 'Formuliere es als Herausforderung, die es zu meistern gilt, nicht als persönliches Versagen. Fokus auf Ergebnisse: „Dieser Ansatz liefert nicht die Ergebnisse, die wir brauchen."',
@@ -156,6 +157,7 @@ export default {
       strengths: ['Charismatische Führung', 'Handlungsdrang', 'Inspiriert andere', 'Schnelle Entscheidungsfindung', 'Wettbewerbsgeist'],
       challenges: ['Kann anderen zu schnell sein', 'Kann emotionale Nuancen übersehen', 'Ungeduldig bei langsamen Prozessen'],
       keywords: ['Antrieb', 'Charisma', 'Aktion', 'Schwung'],
+      professions: ['Vertriebsleiter', 'Startup-Gründer', 'Wahlkampfmanager', 'Sporttrainer', 'Leiter Geschäftsentwicklung', 'Immobilienentwickler', 'Werbeleiter', 'Talentagent'],
       approach: {
         giving_feedback: 'Beginne mit dem, was gut lief, und komm dann schnell zu dem, was verbessert werden muss. Halte es zügig und vorwärtsgerichtet.',
         criticism: 'Fordere sie heraus, besser zu werden, statt bei Fehlern zu verweilen. Sie reagieren auf anspruchsvolle Zielvorgaben.',
@@ -170,6 +172,7 @@ export default {
       strengths: ['Visionäre Führung', 'Überzeugende Kommunikation', 'Hohe Energie', 'Risikotoleranz', 'Inspirierende Ausstrahlung'],
       challenges: ['Kann sich übernehmen', 'Kann Details vernachlässigen', 'Rastlos wenn es stockt', 'Kann Gespräche dominieren'],
       keywords: ['Vision', 'Begeisterung', 'Einfluss', 'Kühnheit'],
+      professions: ['Risikokapitalgeber', 'Kreativdirektor', 'Eventproduzent', 'Talkshow-Moderator', 'Markenstratege', 'Filmproduzent', 'Politischer Kommentator', 'Innovationsberater'],
       approach: {
         giving_feedback: 'Sei begeistert und zukunftsorientiert. Verbinde Kritik mit einer Vision davon, wie Bestleistung aussieht.',
         criticism: 'Nutze ihren Wettbewerbsgeist: „So kannst Du noch wirkungsvoller sein." Vermeide Mikromanagement.',
@@ -184,6 +187,7 @@ export default {
       strengths: ['Natürlicher Ermutiger', 'Baut leicht Beziehungen auf', 'Optimistische Grundhaltung', 'Überzeugende Kommunikation', 'Teamenergiebündel'],
       challenges: ['Kann schwierige Gespräche meiden', 'Kann sich sozial übernehmen', 'Manchmal mangelnde Konsequenz'],
       keywords: ['Ermutigung', 'Optimismus', 'Verbindung', 'Wärme'],
+      professions: ['Motivationsredner', 'Life Coach', 'PR-Manager', 'Personalvermittler', 'Gemeindeorganisator', 'Unternehmenstrainer', 'Fundraiser', 'Markenbotschafter'],
       approach: {
         giving_feedback: 'Beginne mit echtem Lob und Wertschätzung. Formuliere Verbesserungsbereiche als Wachstumschancen, nicht als Versagen.',
         criticism: 'Sei warmherzig, aber ehrlich. Sie müssen sich auch während schwieriger Gespräche gemocht fühlen. Verwende „Wir"-Sprache.',
@@ -198,6 +202,7 @@ export default {
       strengths: ['Hervorragender Kommunikator', 'Baut mühelos Netzwerke auf', 'Kreative Problemlösung', 'Begeisterter Teamplayer', 'Anpassungsfähig'],
       challenges: ['Kann an Durchhaltevermögen mangeln', 'Kann unorganisiert sein', 'Meidet Konflikte', 'Leicht ablenkbar'],
       keywords: ['Menschen', 'Energie', 'Kreativität', 'Optimismus'],
+      professions: ['Marketingmanager', 'Fernsehmoderator', 'Social-Media-Stratege', 'Hochzeitsplaner', 'Reiseleiter', 'Eventkoordinator', 'Journalist', 'Reiseveranstalter', 'Radiomoderator'],
       approach: {
         giving_feedback: 'Gestalte es gesprächig und positiv. Vermeide rein schriftliches Feedback — sie bevorzugen persönliche Gespräche.',
         criticism: 'Verpacke es behutsam. Sie nehmen Kritik persönlich. Fokussiere auf Verhalten, nicht auf Charakter: „Der Ansatz muss angepasst werden."',
@@ -212,6 +217,7 @@ export default {
       strengths: ['Schafft Harmonie', 'Geduldiger Zuhörer', 'Loyal und unterstützend', 'Ruhiger Kommunikator', 'Vertrauensperson'],
       challenges: ['Vermeidet es, anzuecken', 'Kann eigene Bedürfnisse unterdrücken', 'Langsam bei Veränderungen'],
       keywords: ['Harmonie', 'Loyalität', 'Geduld', 'Vertrauen'],
+      professions: ['Lehrer', 'Therapeut', 'Customer-Success-Manager', 'Personalfachkraft', 'Leiter einer gemeinnützigen Organisation', 'Schulberater', 'Karrierecoach', 'Familientherapeut'],
       approach: {
         giving_feedback: 'Sei behutsam, konkret und beruhigend. Sie müssen wissen, dass die Beziehung sicher ist, bevor sie Kritik hören.',
         criticism: 'Betone, dass Du sie und die Beziehung wertschätzt. Formuliere Änderungen als „Lass uns gemeinsam verbessern."',
@@ -226,6 +232,7 @@ export default {
       strengths: ['Natürlicher Vermittler', 'Emotionale Intelligenz', 'Inklusive Führung', 'Geduldig und warmherzig', 'Bildet Konsens'],
       challenges: ['Kann unentschlossen sein', 'Kann Frieden über Fortschritt stellen', 'Zögert, Widerspruch zu äußern', 'Meidet schwierige Entscheidungen'],
       keywords: ['Frieden', 'Inklusion', 'Empathie', 'Stabilität'],
+      professions: ['Sozialarbeiter', 'Teamvermittler', 'Mediator', 'Seelsorger', 'Ergotherapeut', 'Schulpsychologe', 'Fachkraft für Konfliktlösung', 'Gemeindegesundheitsarbeiter', 'Rehabilitationsberater'],
       approach: {
         giving_feedback: 'Sei einfühlsam und kooperativ. Formuliere Feedback als gemeinsames Ziel, nicht als Anweisung von oben.',
         criticism: 'Sei sehr behutsam. Sie nehmen Kritik tief auf. Bestätige zuerst die Beziehung, dann besprich das Thema.',
@@ -240,6 +247,7 @@ export default {
       strengths: ['Zuverlässiger Teamplayer', 'Warmherzig und nahbar', 'Beständige Leistung', 'Starkes Durchhaltevermögen', 'Ruhig unter Druck'],
       challenges: ['Kann sich gegen Veränderung sträuben', 'Kann zu nachgiebig sein', 'Stellt eigene Beiträge nicht heraus'],
       keywords: ['Zuverlässigkeit', 'Wärme', 'Hilfsbereitschaft', 'Beständigkeit'],
+      professions: ['Krankenpfleger', 'Grundschullehrer', 'Hotelmanager', 'Patientenfürsprecher', 'Tierarzt', 'Kitaleiter', 'Physiotherapeut', 'Koordinator für Sozialdienste'],
       approach: {
         giving_feedback: 'Sei freundlich und konkret. Würdige den Einsatz, bevor Du Änderungen vorschlägst. Sie müssen sich wertgeschätzt fühlen.',
         criticism: 'Formuliere es behutsam und konstruktiv. Zeige, wie die Änderung dem Team hilft: „Das würde es für alle einfacher machen."',
@@ -254,6 +262,7 @@ export default {
       strengths: ['Außergewöhnliche Geduld', 'Zuverlässig und beständig', 'Loyales Teammitglied', 'Ruhige Ausstrahlung', 'Starke Arbeitsmoral'],
       challenges: ['Widerstand gegen Veränderung', 'Kann zu passiv sein', 'Schwierigkeiten, Nein zu sagen', 'Langsame Anpassung'],
       keywords: ['Geduld', 'Loyalität', 'Stabilität', 'Verlässlichkeit'],
+      professions: ['Verwaltungsangestellter', 'Bibliothekar', 'Hausarzt', 'Berater', 'Büroleiter', 'Archivar', 'Bankangestellter', 'Versicherungsvertreter', 'Assistenz der Geschäftsleitung', 'Buchhalter'],
       approach: {
         giving_feedback: 'Sei geduldig und strukturiert. Gib ihnen Zeit zur Verarbeitung. Eine schriftliche Zusammenfassung nach dem Gespräch ist hilfreich.',
         criticism: 'Sei ehrlich, aber mitfühlend. Sie fürchten Störungen und Ablehnung: „Deine Arbeit zählt — so kannst Du sie noch besser machen."',
@@ -268,6 +277,7 @@ export default {
       strengths: ['Tiefes Fachwissen', 'Akribische Detailgenauigkeit', 'Zuverlässig und gründlich', 'Ruhig und fokussiert', 'Qualitätsorientiert'],
       challenges: ['Kann neue Methoden ablehnen', 'Kann übervorsichtig sein', 'Teilt nur zögerlich Meinungen mit', 'Risikoscheu'],
       keywords: ['Expertise', 'Präzision', 'Zuverlässigkeit', 'Tiefe'],
+      professions: ['Apotheker', 'Labortechniker', 'Technischer Redakteur', 'Datenbankadministrator', 'Dentalhygieniker', 'Medizinischer Kodierer', 'Veterinärtechniker', 'Netzwerkadministrator', 'Radiologietechnologe'],
       approach: {
         giving_feedback: 'Sei konkret und datengestützt. Untermauere Deine Punkte mit Belegen. Sie respektieren Gründlichkeit auch beim Feedback.',
         criticism: 'Präsentiere es als Chance zur Qualitätsverbesserung. Nutze Fakten, nicht Gefühle: „Die Daten deuten auf einen anderen Ansatz hin."',
@@ -282,6 +292,7 @@ export default {
       strengths: ['Systematisches Denken', 'Qualitätsfokussiert', 'Geduldige Analyse', 'Zuverlässig und gründlich', 'Einheitliche Standards'],
       challenges: ['Analyseparalyse', 'Widerstand gegen Veränderung', 'Kann unflexibel wirken', 'Kann überkritisch sein'],
       keywords: ['Analyse', 'Standards', 'Gründlichkeit', 'Methodik'],
+      professions: ['Buchhalter', 'Compliance-Beauftragter', 'Medizinischer Dokumentar', 'Qualitätsprüfer', 'Versicherungssachbearbeiter', 'Steuerberater', 'Koordinator klinischer Studien', 'Lohnbuchhalter', 'Bauinspektor'],
       approach: {
         giving_feedback: 'Sei strukturiert und logisch. Präsentiere einen klaren, belegten Fall. Sie schätzen systematisches Feedback.',
         criticism: 'Fokussiere auf Prozessverbesserung, nicht auf persönliche Kritik. Nutze Daten und Beispiele. Gib ihnen Zeit zum Analysieren und Antworten.',
@@ -296,6 +307,7 @@ export default {
       strengths: ['Außergewöhnliche Qualitätskontrolle', 'Gründliche Analyse', 'Präzise Kommunikation', 'Starkes kritisches Denken', 'Liebe zum Detail'],
       challenges: ['Perfektionismus kann den Fortschritt bremsen', 'Kann kalt oder kritisch wirken', 'Überdenkt Entscheidungen', 'Schwierigkeiten, „gut genug" zu akzeptieren'],
       keywords: ['Präzision', 'Qualität', 'Analyse', 'Standards'],
+      professions: ['Wirtschaftsprüfer', 'Datenanalyst', 'Spezialist für regulatorische Angelegenheiten', 'Sicherheitsingenieur', 'Rechtsanwaltsgehilfe', 'Statistiker', 'Technischer Lektor', 'Steuerberater', 'Versicherungsmathematiker'],
       approach: {
         giving_feedback: 'Sei präzise, sachlich und unemotional. Sie respektieren intellektuelle Ehrlichkeit mehr als Diplomatie.',
         criticism: 'Fokussiere auf Logik und Belege. Sie können harte Kritik vertragen, wenn sie gut begründet ist: „Das zeigen die Daten."',
@@ -310,6 +322,7 @@ export default {
       strengths: ['Analytisches Denken', 'Detailorientiert', 'Qualitätsfokussiert', 'Systematische Vorgehensweise', 'Kritische Bewertung'],
       challenges: ['Kann übervorsichtig sein', 'Kann distanziert wirken', 'Analyseparalyse', 'Schwierigkeiten mit Mehrdeutigkeit'],
       keywords: ['Logik', 'Genauigkeit', 'Systeme', 'Qualität'],
+      professions: ['Softwareentwickler', 'Forschungswissenschaftler', 'Finanzanalyst', 'Architekt', 'Forensischer Analyst', 'Data Scientist', 'Luft- und Raumfahrtingenieur', 'Biostatistiker', 'Volkswirt'],
       approach: {
         giving_feedback: 'Sei konkret, sachlich und strukturiert. Stelle schriftliche Unterlagen zur Verfügung, die sie prüfen können. Vermeide emotionale Appelle.',
         criticism: 'Präsentiere Belege und logische Begründungen. Formuliere es als zu lösendes Problem: „Der aktuelle Ansatz hat diese Lücken."',
@@ -324,6 +337,7 @@ export default {
       strengths: ['Strategisches Denken', 'Entschlossene Analyse', 'Zielorientierte Präzision', 'Eigenständige Problemlösung', 'Hohe Ansprüche'],
       challenges: ['Kann einschüchternd wirken', 'Ungeduldig bei Ineffizienz', 'Kann kühl wirken', 'Schwierigkeiten mit Smalltalk'],
       keywords: ['Strategie', 'Präzision', 'Unabhängigkeit', 'Effizienz'],
+      professions: ['Investmentbanker', 'Systemarchitekt', 'Patentanwalt', 'Chief Technology Officer', 'Betriebsanalyst', 'Quantitativer Analyst', 'Cybersicherheitsarchitekt', 'Wirtschaftsanwalt'],
       approach: {
         giving_feedback: 'Sei prägnant, logisch und ergebnisorientiert. Sie wollen wissen, was zu verbessern ist und wie — überspringe die Gefühle.',
         criticism: 'Formuliere es als strategische Lücke: „Dieser Ansatz hat einen logischen Fehler — hier mein Vorschlag." Sei direkt, aber sachlich.',
@@ -338,6 +352,7 @@ export default {
       strengths: ['Strategische Vision', 'Analytische Führung', 'Entschlossen und zugleich gründlich', 'Hohe Erwartungen', 'Systemdenken'],
       challenges: ['Perfektionismus trifft auf Ungeduld', 'Kann fordernd sein', 'Kann durch Direktheit abschrecken', 'Schwierigkeiten beim Delegieren'],
       keywords: ['Architektur', 'Strategie', 'Standards', 'Führung'],
+      professions: ['Unternehmensberater', 'Strategischer Planer', 'Technischer Leiter', 'Politikanalyst', 'Risikomanager', 'Programmleiter', 'Finanzvorstand', 'Stadtplaner', 'Klinikverwalter'],
       approach: {
         giving_feedback: 'Sei direkt und gut begründet. Sie respektieren Ehrlichkeit, die durch Belege gestützt wird. Vermeide Floskeln.',
         criticism: 'Fordere ihre Logik heraus, nicht ihren Charakter. Präsentiere alternative Ansätze mit Daten als Grundlage.',
@@ -352,6 +367,7 @@ export default {
       strengths: ['Souveränes Auftreten', 'Strategische Entschlusskraft', 'Hohe Ansprüche', 'Ergebnisorientierte Analyse', 'Effizienzfokus'],
       challenges: ['Kann übermäßig fordernd sein', 'Kann andere einschüchtern', 'Ungeduldig beim Konsensaufbau', 'Schwierigkeiten, Verletzlichkeit zu zeigen'],
       keywords: ['Führung', 'Effizienz', 'Entschlossenheit', 'Kontrolle'],
+      professions: ['Betriebsleiter', 'Richter', 'Fluglotse', 'Logistikleiter', 'Wirtschaftsingenieur', 'Bauleiter', 'Werksleiter', 'Leiter Lieferkette', 'Gefängnisdirektor'],
       approach: {
         giving_feedback: 'Sei direkt, kurz und faktenbasiert. Sie wollen umsetzbares Feedback, keine emotionale Aufarbeitung.',
         criticism: 'Präsentiere es als Effizienzproblem: „Das bremst uns aus und so beheben wir es." Sei offen und konstruktiv.',
