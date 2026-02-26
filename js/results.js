@@ -4,11 +4,13 @@ import { getPersonality, DISC_COLORS } from './personalities.js';
 import { TYPE_ICONS } from './icons.js';
 import {
   loadResult, decodeResult, determineType, encodeResult, extractCode,
-  renderAxisSliders, drawDiamondChart, drawAxesPlot, drawDiscWheel, preloadIcons
+  renderAxisSliders, drawDiamondChart, drawAxesPlot, drawDiscWheel, preloadIcons,
+  saveName, loadName
 } from './shared.js';
 import { drawQR } from './qr.js';
 
 let currentScores = null;
+let currentName = '';
 let iconImages = {};
 
 async function init() {
@@ -19,12 +21,15 @@ async function init() {
   // Check URL param
   const params = new URLSearchParams(window.location.search);
   const code = params.get('r');
+  const nameParam = params.get('name');
   if (code) {
     currentScores = decodeResult(code);
   }
   if (!currentScores) {
     currentScores = loadResult();
   }
+  // Name: URL param > localStorage
+  currentName = nameParam || loadName();
   await renderPage();
 }
 
@@ -45,12 +50,18 @@ async function renderPage() {
   const typeId = determineType(currentScores);
   const personality = getPersonality(typeId);
   const code = encodeResult(currentScores);
-  const shareUrl = window.location.origin + window.location.pathname + '?r=' + code;
+
+  function buildShareUrl() {
+    const params = new URLSearchParams({ r: code });
+    if (currentName) params.set('name', currentName);
+    return window.location.origin + window.location.pathname + '?' + params.toString();
+  }
+  let shareUrl = buildShareUrl();
 
   // Update URL bar so users can always copy/bookmark it
-  if (!window.location.search.includes('r=')) {
-    history.replaceState(null, '', '?r=' + code);
-  }
+  history.replaceState(null, '', '?' + new URLSearchParams(
+    currentName ? { r: code, name: currentName } : { r: code }
+  ).toString());
 
   // Icon SVG
   const iconFn = TYPE_ICONS[typeId];
@@ -131,6 +142,10 @@ async function renderPage() {
     <div class="card share-section">
       <h3>${t('results_share_title')}</h3>
       <p>${t('results_share_text')}</p>
+      <div class="share-name-row">
+        <label for="share-name">${t('results_share_name')}</label>
+        <input type="text" class="input" id="share-name" placeholder="${t('results_share_name_placeholder')}" value="${currentName}">
+      </div>
       <div class="share-qr"><canvas id="result-qr"></canvas></div>
       <div class="share-code">
         <code id="result-code">${code}</code>
@@ -167,6 +182,22 @@ async function renderPage() {
   // Copy handlers
   document.getElementById('copy-code').addEventListener('click', () => copyText(code, 'copy-code'));
   document.getElementById('copy-url').addEventListener('click', () => copyText(shareUrl, 'copy-url'));
+
+  // Name field — updates URL, QR, and localStorage on change
+  const nameInput = document.getElementById('share-name');
+  nameInput.addEventListener('input', () => {
+    currentName = nameInput.value;
+    saveName(currentName);
+    shareUrl = buildShareUrl();
+    // Update displayed URL
+    document.getElementById('result-url').textContent = shareUrl;
+    // Update URL bar
+    history.replaceState(null, '', '?' + new URLSearchParams(
+      currentName ? { r: code, name: currentName } : { r: code }
+    ).toString());
+    // Regenerate QR
+    drawQR(document.getElementById('result-qr'), shareUrl);
+  });
 
   // QR code
   drawQR(document.getElementById('result-qr'), shareUrl);

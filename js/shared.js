@@ -104,6 +104,14 @@ export function loadResult() {
   } catch { return null; }
 }
 
+export function saveName(name) {
+  localStorage.setItem('disc_name', name || '');
+}
+
+export function loadName() {
+  return localStorage.getItem('disc_name') || '';
+}
+
 // --- Canvas helpers ---
 
 function initCanvas(canvas, size) {

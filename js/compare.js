@@ -8,6 +8,7 @@ import {
   drawMultiDiamond, drawMultiAxesPlot, drawMultiDiscWheel, preloadIcons
 } from './shared.js';
 import { drawQR } from './qr.js';
+import { scanQR, parseResultUrl, hasCameraSupport, hasBarcodeDetector } from './qr-scan.js';
 
 const PROFILE_COLORS = ['#ffffff','#9966ff','#ff6b9d','#4ecdc4','#ffe66d','#ff8a5c','#a8e6cf','#ff4757'];
 const STORAGE_KEY = 'disc_teams';
@@ -131,6 +132,7 @@ function renderPage() {
       <div id="profiles-input" class="profiles-input"></div>
       <div class="compare-actions">
         <button class="btn btn-secondary" id="add-profile">${t('compare_add')}</button>
+        ${hasCameraSupport() ? `<button class="btn btn-secondary" id="scan-qr">📷 ${t('compare_scan_qr')}</button>` : ''}
         <button class="btn btn-secondary" id="load-saved">${t('compare_load')}</button>
         <button class="btn btn-primary" id="compare-btn">${t('compare_btn')}</button>
       </div>
@@ -155,6 +157,25 @@ function renderPage() {
     profileInputs.push({ name: '', code: '' });
     renderProfileInputs();
   });
+
+  // Scan QR code from camera
+  const scanBtn = document.getElementById('scan-qr');
+  if (scanBtn) {
+    scanBtn.addEventListener('click', async () => {
+      const text = await scanQR();
+      if (!text) return;
+      const { code, name } = parseResultUrl(text);
+      if (!code) return;
+      // Find first empty slot or add a new one
+      let slot = profileInputs.findIndex(p => !p.code);
+      if (slot < 0) {
+        slot = profileInputs.length;
+        profileInputs.push({ name: '', code: '' });
+      }
+      profileInputs[slot] = { name: name || profileInputs[slot].name, code };
+      renderProfileInputs();
+    });
+  }
 
   document.getElementById('load-saved').addEventListener('click', () => {
     const scores = loadResult();
