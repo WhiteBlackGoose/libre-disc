@@ -13,6 +13,7 @@ export default {
   hero_add_existing_submit: 'Load',
   hero_add_existing_invalid: 'Invalid result code or URL. Please check and try again.',
   results_professions: 'Suitable Professions',
+  results_professions_less: 'Less Suitable Professions',
   dim: { D: 'Dominance', I: 'Influence', S: 'Steadiness', C: 'Conscientiousness' },
   intro_text: 'Rate 28 statements on a 1–5 scale. Your results map to one of 16 personality profiles — including blended types like Di, IS, Cd, and more.',
   intro_saved: 'Results are saved locally and can be shared via a compact code for comparison.',

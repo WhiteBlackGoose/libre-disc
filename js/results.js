@@ -1,6 +1,6 @@
 import { initI18n, t, onLocaleChange } from './i18n.js';
 import { renderLayout } from './layout.js';
-import { getPersonality, DISC_COLORS } from './personalities.js';
+import { getPersonality, DISC_COLORS, getOppositeType } from './personalities.js';
 import { TYPE_ICONS } from './icons.js';
 import {
   loadResult, decodeResult, determineType, encodeResult, extractCode,
@@ -49,6 +49,8 @@ async function renderPage() {
 
   const typeId = determineType(currentScores);
   const personality = getPersonality(typeId);
+  const oppositeId = getOppositeType(typeId);
+  const opposite = getPersonality(oppositeId);
   const code = encodeResult(currentScores);
 
   function buildShareUrl() {
@@ -126,6 +128,9 @@ async function renderPage() {
     <div class="card">
       <h3>${t('results_professions')}</h3>
       <div class="professions-list">${personality.professions.map(p => `<span class="profession-tag">${p}</span>`).join('')}</div>
+      ${(opposite.professions || []).length > 0 ? `
+      <h3 style="margin-top:1.5rem">${t('results_professions_less')}</h3>
+      <div class="professions-list professions-less">${opposite.professions.map(p => `<span class="profession-tag">${p}</span>`).join('')}</div>` : ''}
     </div>` : ''}
 
     <div class="results-grid">

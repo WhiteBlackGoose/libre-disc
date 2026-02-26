@@ -962,6 +962,10 @@ footer {
   font-size: 0.82rem;
   color: var(--text-secondary);
 }
+.professions-less .profession-tag {
+  opacity: 0.55;
+  border-style: dashed;
+}
 
 .wheel-section { text-align: center; margin: 1.5rem 0; }
 .wheel-container { display: flex; justify-content: center; }

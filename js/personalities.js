@@ -29,6 +29,14 @@ export const PERSONALITY_DATA = {
   Dc: { id: 'Dc', primary: 'D', secondary: 'C',  color: blend(DISC_COLORS.D, DISC_COLORS.C, 0.7) }
 };
 
+// Polar opposites (180° across the DISC wheel)
+const WHEEL_ORDER = ['D','Di','DI','Id','I','Is','IS','Si','S','Sc','SC','Cs','C','Cd','CD','Dc'];
+export function getOppositeType(id) {
+  const idx = WHEEL_ORDER.indexOf(id);
+  if (idx < 0) return 'S';
+  return WHEEL_ORDER[(idx + 8) % 16];
+}
+
 export function getPersonality(id) {
   const data = PERSONALITY_DATA[id] || PERSONALITY_DATA['D'];
   const text = t(`types.${id}`);

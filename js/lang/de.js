@@ -12,6 +12,7 @@ export default {
   hero_add_existing_submit: 'Laden',
   hero_add_existing_invalid: 'Ungültiger Ergebniscode oder URL. Bitte überprüfen und erneut versuchen.',
   results_professions: 'Passende Berufe',
+  results_professions_less: 'Weniger passende Berufe',
   hero_start: 'Test starten',
   dim: { D: 'Dominanz', I: 'Einfluss', S: 'Stetigkeit', C: 'Gewissenhaftigkeit' },
   intro_text: 'Bewerte 28 Aussagen auf einer Skala von 1–5. Deine Ergebnisse werden einem von 16 Persönlichkeitsprofilen zugeordnet — einschließlich Mischtypen wie Di, IS, Cd und mehr.',

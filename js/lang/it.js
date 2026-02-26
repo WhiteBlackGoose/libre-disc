@@ -12,6 +12,7 @@ export default {
   hero_add_existing_submit: 'Carica',
   hero_add_existing_invalid: 'Codice o URL non valido. Controlla e riprova.',
   results_professions: 'Professioni adatte',
+  results_professions_less: 'Professioni meno adatte',
   hero_start: 'Inizia il Test',
   dim: { D: 'Dominanza', I: 'Influenza', S: 'Stabilità', C: 'Coscienziosità' },
   intro_text: 'Valuta 28 affermazioni su una scala da 1 a 5. I tuoi risultati corrispondono a uno dei 16 profili di personalità — inclusi tipi misti come Di, IS, Cd e altri.',

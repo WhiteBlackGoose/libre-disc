@@ -12,6 +12,7 @@ export default {
   hero_add_existing_submit: 'Charger',
   hero_add_existing_invalid: 'Code ou URL invalide. Veuillez vérifier et réessayer.',
   results_professions: 'Professions adaptées',
+  results_professions_less: 'Professions moins adaptées',
   hero_start: 'Commencer le test',
   dim: { D: 'Dominance', I: 'Influence', S: 'Stabilité', C: 'Conscience' },
   intro_text: 'Évaluez 28 affirmations sur une échelle de 1 à 5. Vos résultats correspondent à l\'un des 16 profils de personnalité — y compris les types mixtes comme Di, IS, Cd, et bien d\'autres.',
