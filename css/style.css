@@ -982,18 +982,29 @@ footer {
 }
 .share-name-row {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  max-width: 400px;
+  gap: 0.5rem;
+  max-width: 600px;
   margin: 0 auto 1.25rem;
+  align-items: center;
 }
 .share-name-row label {
   white-space: nowrap;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 .share-name-row .input {
   flex: 1;
+  padding: 0.6rem 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.share-name-row .input:focus {
+  border-color: var(--color-i);
 }
 
 /* QR scanner overlay */
