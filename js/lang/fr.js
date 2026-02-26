@@ -172,7 +172,7 @@ export default {
       strengths: ['Leadership visionnaire', 'Communication persuasive', 'Grande énergie', 'Tolérance au risque', 'Présence inspirante'],
       challenges: ['Peut trop s\'engager', 'Peut négliger les détails', 'Agité quand les choses ralentissent', 'Peut dominer les conversations'],
       keywords: ['Vision', 'Enthousiasme', 'Influence', 'Audace'],
-      professions: ['Capital-risqueur', 'Directeur de création', 'Producteur d'événements', 'Animateur de talk-show', 'Stratège de marque', 'Producteur de films', 'Commentateur politique', 'Consultant en innovation'],
+      professions: ['Capital-risqueur', 'Directeur de création', 'Producteur d\'événements', 'Animateur de talk-show', 'Stratège de marque', 'Producteur de films', 'Commentateur politique', 'Consultant en innovation'],
       approach: {
         giving_feedback: 'Soyez enthousiaste et tourné vers l\'avenir. Associez les critiques à une vision de ce à quoi l\'excellence ressemble.',
         criticism: 'Utilisez sa nature compétitive : « Voici comment vous pouvez avoir encore plus d\'impact. » Évitez le micro-management.',
@@ -202,7 +202,7 @@ export default {
       strengths: ['Communicateur hors pair', 'Crée des réseaux naturellement', 'Résolution créative de problèmes', 'Coéquipier enthousiaste', 'Adaptable'],
       challenges: ['Peut manquer de suivi', 'Peut être désorganisé', 'Évite les conflits', 'Facilement distrait'],
       keywords: ['Relations', 'Énergie', 'Créativité', 'Optimisme'],
-      professions: ['Responsable marketing', 'Présentateur TV', 'Stratège médias sociaux', 'Organisateur de mariages', 'Guide touristique', 'Coordinateur d'événements', 'Journaliste', 'Tour-opérateur', 'Animateur radio'],
+      professions: ['Responsable marketing', 'Présentateur TV', 'Stratège médias sociaux', 'Organisateur de mariages', 'Guide touristique', 'Coordinateur d\'événements', 'Journaliste', 'Tour-opérateur', 'Animateur radio'],
       approach: {
         giving_feedback: 'Rendez-le conversationnel et positif. Évitez le feedback uniquement écrit — ce profil préfère le dialogue en face à face.',
         criticism: 'Enrobez-le délicatement. Ce profil prend les critiques personnellement. Concentrez-vous sur le comportement, pas le caractère : « L\'approche doit être ajustée. »',
@@ -217,7 +217,7 @@ export default {
       strengths: ['Crée l\'harmonie', 'Écoute patiente', 'Loyal et bienveillant', 'Communication calme', 'Confident de confiance'],
       challenges: ['Évite de faire des vagues', 'Peut refouler ses propres besoins', 'Lent à agir face au changement'],
       keywords: ['Harmonie', 'Loyauté', 'Patience', 'Confiance'],
-      professions: ['Enseignant', 'Thérapeute', 'Responsable du succès client', 'Spécialiste RH', 'Directeur d'association', 'Conseiller scolaire', 'Coach de carrière', 'Thérapeute familial'],
+      professions: ['Enseignant', 'Thérapeute', 'Responsable du succès client', 'Spécialiste RH', 'Directeur d\'association', 'Conseiller scolaire', 'Coach de carrière', 'Thérapeute familial'],
       approach: {
         giving_feedback: 'Soyez doux, précis et rassurant. Ce profil a besoin de savoir que la relation est solide avant d\'entendre une critique.',
         criticism: 'Soulignez que vous le valorisez ainsi que la relation. Présentez les changements comme : « Améliorons-nous ensemble. »',
@@ -232,7 +232,7 @@ export default {
       strengths: ['Médiateur naturel', 'Intelligence émotionnelle', 'Leader inclusif', 'Patient et chaleureux', 'Bâtisseur de consensus'],
       challenges: ['Peut être indécis', 'Peut privilégier la paix au détriment du progrès', 'Réticent à s\'opposer', 'Évite les décisions difficiles'],
       keywords: ['Paix', 'Inclusion', 'Empathie', 'Stabilité'],
-      professions: ['Travailleur social', 'Facilitateur d'équipe', 'Médiateur', 'Conseiller pastoral', 'Ergothérapeute', 'Psychologue scolaire', 'Spécialiste en résolution de conflits', 'Agent de santé communautaire', 'Conseiller en réadaptation'],
+      professions: ['Travailleur social', 'Facilitateur d\'équipe', 'Médiateur', 'Conseiller pastoral', 'Ergothérapeute', 'Psychologue scolaire', 'Spécialiste en résolution de conflits', 'Agent de santé communautaire', 'Conseiller en réadaptation'],
       approach: {
         giving_feedback: 'Soyez empathique et collaboratif. Présentez le feedback comme un objectif commun, pas comme une directive descendante.',
         criticism: 'Soyez très délicat. Ce profil intériorise profondément les critiques. Affirmez d\'abord la relation, puis abordez le sujet.',
@@ -247,7 +247,7 @@ export default {
       strengths: ['Coéquipier fiable', 'Chaleureux et accessible', 'Performant régulier', 'Excellent suivi', 'Calme sous pression'],
       challenges: ['Peut résister au changement', 'Peut être trop accommodant', 'Évite de mettre en avant ses propres contributions'],
       keywords: ['Fiabilité', 'Chaleur', 'Service', 'Constance'],
-      professions: ['Infirmier', 'Instituteur', 'Directeur d'hôtellerie', 'Défenseur des patients', 'Vétérinaire', 'Directeur de crèche', 'Kinésithérapeute', 'Coordinateur des services sociaux'],
+      professions: ['Infirmier', 'Instituteur', 'Directeur d\'hôtellerie', 'Défenseur des patients', 'Vétérinaire', 'Directeur de crèche', 'Kinésithérapeute', 'Coordinateur des services sociaux'],
       approach: {
         giving_feedback: 'Soyez bienveillant et précis. Reconnaissez ses efforts avant de suggérer des changements. Ce profil a besoin de se sentir apprécié.',
         criticism: 'Formulez-la avec douceur et de manière constructive. Montrez en quoi le changement aidera l\'équipe : « Cela faciliterait les choses pour tout le monde. »',
@@ -262,7 +262,7 @@ export default {
       strengths: ['Patience exceptionnelle', 'Fiable et constant', 'Membre d\'équipe loyal', 'Tempérament calme', 'Forte éthique de travail'],
       challenges: ['Résiste au changement', 'Peut être trop passif', 'Difficulté à dire non', 'Lent à s\'adapter'],
       keywords: ['Patience', 'Loyauté', 'Stabilité', 'Fiabilité'],
-      professions: ['Assistant administratif', 'Bibliothécaire', 'Médecin généraliste', 'Conseiller', 'Responsable de bureau', 'Archiviste', 'Guichetier de banque', 'Agent d'assurance', 'Assistant de direction', 'Comptable auxiliaire'],
+      professions: ['Assistant administratif', 'Bibliothécaire', 'Médecin généraliste', 'Conseiller', 'Responsable de bureau', 'Archiviste', 'Guichetier de banque', 'Agent d\'assurance', 'Assistant de direction', 'Comptable auxiliaire'],
       approach: {
         giving_feedback: 'Soyez patient et structuré. Laissez-lui le temps d\'assimiler. Un suivi écrit après une conversation orale fonctionne bien.',
         criticism: 'Soyez honnête mais compatissant. Ce profil craint les perturbations et le rejet : « Votre travail compte — voici comment le rendre encore meilleur. »',
@@ -292,7 +292,7 @@ export default {
       strengths: ['Pensée systématique', 'Axé sur la qualité', 'Analyse patiente', 'Fiable et minutieux', 'Standards constants'],
       challenges: ['Paralysie par l\'analyse', 'Résistant au changement', 'Peut sembler inflexible', 'Peut être trop critique'],
       keywords: ['Analyse', 'Standards', 'Rigueur', 'Méthode'],
-      professions: ['Comptable', 'Responsable conformité', 'Spécialiste des dossiers médicaux', 'Inspecteur qualité', 'Souscripteur d'assurance', 'Préparateur fiscal', 'Coordinateur de recherche clinique', 'Spécialiste paie', 'Inspecteur du bâtiment'],
+      professions: ['Comptable', 'Responsable conformité', 'Spécialiste des dossiers médicaux', 'Inspecteur qualité', 'Souscripteur d\'assurance', 'Préparateur fiscal', 'Coordinateur de recherche clinique', 'Spécialiste paie', 'Inspecteur du bâtiment'],
       approach: {
         giving_feedback: 'Soyez structuré et logique. Présentez un argumentaire clair avec des preuves. Ce profil apprécie un feedback systématique.',
         criticism: 'Concentrez-vous sur l\'amélioration des processus, pas sur la critique personnelle. Utilisez des données et des exemples. Laissez-lui le temps d\'analyser et de répondre.',
@@ -337,7 +337,7 @@ export default {
       strengths: ['Pensée stratégique', 'Analyse décisive', 'Précision orientée objectifs', 'Résolution de problèmes autonome', 'Standards élevés'],
       challenges: ['Peut être intimidant', 'Impatient face à l\'inefficacité', 'Peut sembler froid', 'Difficulté avec les bavardages'],
       keywords: ['Stratégie', 'Précision', 'Indépendance', 'Efficacité'],
-      professions: ['Banquier d'investissement', 'Architecte systèmes', 'Avocat en brevets', 'Directeur technique', 'Analyste des opérations', 'Analyste quantitatif', 'Architecte cybersécurité', 'Avocat d'affaires'],
+      professions: ['Banquier d\'investissement', 'Architecte systèmes', 'Avocat en brevets', 'Directeur technique', 'Analyste des opérations', 'Analyste quantitatif', 'Architecte cybersécurité', 'Avocat d\'affaires'],
       approach: {
         giving_feedback: 'Soyez concis, logique et axé sur les résultats. Ce profil veut savoir quoi corriger et comment s\'améliorer — épargnez-lui les émotions.',
         criticism: 'Présentez-la comme une lacune stratégique : « Cette approche a une faille logique — voici ce que je suggérerais. » Soyez direct mais factuel.',
@@ -367,7 +367,7 @@ export default {
       strengths: ['Présence imposante', 'Décision stratégique', 'Standards élevés', 'Analyse orientée résultats', 'Axé sur l\'efficacité'],
       challenges: ['Peut être trop exigeant', 'Peut intimider les autres', 'Impatient avec la recherche de consensus', 'Difficulté à montrer sa vulnérabilité'],
       keywords: ['Commandement', 'Efficacité', 'Détermination', 'Contrôle'],
-      professions: ['Directeur des opérations', 'Juge', 'Contrôleur aérien', 'Directeur logistique', 'Ingénieur industriel', 'Directeur de chantier', 'Directeur d'usine', 'Directeur de la chaîne d'approvisionnement', 'Directeur de prison'],
+      professions: ['Directeur des opérations', 'Juge', 'Contrôleur aérien', 'Directeur logistique', 'Ingénieur industriel', 'Directeur de chantier', 'Directeur d\'usine', 'Directeur de la chaîne d\'approvisionnement', 'Directeur de prison'],
       approach: {
         giving_feedback: 'Soyez direct, bref et factuel. Ce profil veut un feedback actionnable, pas un traitement émotionnel.',
         criticism: 'Présentez-la comme un problème d\'efficacité : « Voici ce qui nous ralentit et comment y remédier. » Soyez franc et constructif.',

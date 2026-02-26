@@ -172,7 +172,7 @@ export default {
       strengths: ['Leadership visionaria', 'Comunicazione persuasiva', 'Alta energia', 'Tolleranza al rischio', 'Presenza ispiratrice'],
       challenges: ['Può impegnarsi eccessivamente', 'Può trascurare i dettagli', 'Irrequieto quando le cose rallentano', 'Può dominare le conversazioni'],
       keywords: ['Visione', 'Entusiasmo', 'Influenza', 'Audacia'],
-      professions: ['Venture capitalist', 'Direttore creativo', 'Produttore di eventi', 'Conduttore di talk show', 'Stratega del marchio', 'Produttore cinematografico', 'Commentatore politico', 'Consulente per l'innovazione'],
+      professions: ['Venture capitalist', 'Direttore creativo', 'Produttore di eventi', 'Conduttore di talk show', 'Stratega del marchio', 'Produttore cinematografico', 'Commentatore politico', 'Consulente per l\'innovazione'],
       approach: {
         giving_feedback: 'Sii entusiasta e orientato al futuro. Accompagna le critiche con una visione di come dovrebbe essere l\'eccellenza.',
         criticism: 'Usa la sua natura competitiva: \'Ecco come puoi avere un impatto ancora maggiore.\' Evita il micromanagement.',
@@ -262,7 +262,7 @@ export default {
       strengths: ['Pazienza eccezionale', 'Affidabile e costante', 'Membro leale del team', 'Atteggiamento calmo', 'Forte etica del lavoro'],
       challenges: ['Resistente al cambiamento', 'Può essere troppo passivo', 'Difficoltà a dire di no', 'Lento nell\'adattarsi'],
       keywords: ['Pazienza', 'Lealtà', 'Stabilità', 'Affidabilità'],
-      professions: ['Assistente amministrativo', 'Bibliotecario', 'Medico di famiglia', 'Consulente', 'Responsabile d'ufficio', 'Archivista', 'Cassiere di banca', 'Agente assicurativo', 'Assistente di direzione', 'Contabile'],
+      professions: ['Assistente amministrativo', 'Bibliotecario', 'Medico di famiglia', 'Consulente', 'Responsabile d\'ufficio', 'Archivista', 'Cassiere di banca', 'Agente assicurativo', 'Assistente di direzione', 'Contabile'],
       approach: {
         giving_feedback: 'Sii paziente e strutturato. Dagli tempo per elaborare. Un follow-up scritto dopo una conversazione verbale funziona bene.',
         criticism: 'Sii onesto ma compassionevole. Teme le interruzioni e il rifiuto: \'Il tuo lavoro conta — ecco come renderlo ancora migliore.\'',
@@ -337,7 +337,7 @@ export default {
       strengths: ['Pensiero strategico', 'Analisi decisa', 'Precisione orientata agli obiettivi', 'Problem-solving indipendente', 'Standard elevati'],
       challenges: ['Può essere intimidatorio', 'Impaziente con l\'inefficienza', 'Può sembrare freddo', 'Difficoltà con le conversazioni leggere'],
       keywords: ['Strategia', 'Precisione', 'Indipendenza', 'Efficienza'],
-      professions: ['Banchiere d'investimento', 'Architetto di sistemi', 'Avvocato brevettuale', 'Chief technology officer', 'Analista operativo', 'Analista quantitativo', 'Architetto di cybersicurezza', 'Avvocato d'impresa'],
+      professions: ['Banchiere d\'investimento', 'Architetto di sistemi', 'Avvocato brevettuale', 'Chief technology officer', 'Analista operativo', 'Analista quantitativo', 'Architetto di cybersicurezza', 'Avvocato d\'impresa'],
       approach: {
         giving_feedback: 'Sii conciso, logico e focalizzato sui risultati. Vuole sapere cosa correggere e come migliorare — evita i sentimentalismi.',
         criticism: 'Formulala come una lacuna strategica: \'Questo approccio ha un difetto logico — ecco cosa suggerirei.\' Sii diretto ma fattuale.',
