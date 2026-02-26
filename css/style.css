@@ -972,6 +972,14 @@ footer {
   margin: 1.5rem 0;
   padding: 2rem;
 }
+.share-qr {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+.share-qr canvas {
+  border-radius: var(--radius);
+}
 .share-code {
   display: flex;
   gap: 0.5rem;

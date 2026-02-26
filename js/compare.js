@@ -7,6 +7,7 @@ import {
   encodeProfiles, decodeProfiles, renderMultiAxisSliders,
   drawMultiDiamond, drawMultiAxesPlot, drawMultiDiscWheel, preloadIcons
 } from './shared.js';
+import { drawQR } from './qr.js';
 
 const PROFILE_COLORS = ['#ffffff','#9966ff','#ff6b9d','#4ecdc4','#ffe66d','#ff8a5c','#a8e6cf','#ff4757'];
 const STORAGE_KEY = 'disc_teams';
@@ -293,6 +294,7 @@ async function renderResults(profiles) {
 
     <div class="card share-section">
       <h3>${t('compare_share')}</h3>
+      <div class="share-qr"><canvas id="compare-qr"></canvas></div>
       <div class="share-code">
         <code id="compare-url" style="font-size:0.75rem;word-break:break-all">${window.location.href}</code>
         <button class="btn btn-secondary btn-sm" id="copy-compare">${t('btn_copy_link')}</button>
@@ -334,6 +336,9 @@ async function renderResults(profiles) {
       setTimeout(() => { btn.textContent = orig; }, 1500);
     });
   });
+
+  // QR code
+  drawQR(document.getElementById('compare-qr'), window.location.href);
 }
 
 function traitWords(text) {
