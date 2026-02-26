@@ -483,19 +483,19 @@ nav .nav-links a.active {
 }
 
 /* Share */
-.share-section {
+.export-panel {
   text-align: center;
   padding: 2rem 0;
 }
 
-.share-code {
+.export-code {
   display: flex;
   gap: 0.5rem;
   max-width: 500px;
   margin: 1rem auto;
 }
 
-.share-code input {
+.export-code input {
   flex: 1;
   padding: 0.75rem 1rem;
   border-radius: var(--radius-sm);
@@ -506,7 +506,7 @@ nav .nav-links a.active {
   font-size: 0.85rem;
 }
 
-.share-code input:focus {
+.export-code input:focus {
   outline: none;
   border-color: var(--color-i);
 }
@@ -874,7 +874,7 @@ footer {
 @media (max-width: 480px) {
   .hero h1 { font-size: 1.6rem; }
   .likert-scale button { width: 48px; height: 48px; font-size: 1rem; }
-  .share-code { flex-direction: column; }
+  .export-code { flex-direction: column; }
   .axis-label { width: 70px; font-size: 0.65rem; }
   .profile-entry .profile-name { width: 80px; }
 }
@@ -967,32 +967,32 @@ footer {
 .wheel-container { display: flex; justify-content: center; }
 .wheel-container canvas { max-width: 480px; }
 
-.share-section {
+.export-panel {
   text-align: center;
   margin: 1.5rem 0;
   padding: 2rem;
 }
-.share-qr {
+.export-qr {
   display: flex;
   justify-content: center;
   margin-bottom: 1.25rem;
 }
-.share-qr canvas {
+.export-qr canvas {
   border-radius: var(--radius);
 }
-.share-name-row {
+.export-name-row {
   display: flex;
   gap: 0.5rem;
   max-width: 600px;
   margin: 0 auto 1.25rem;
   align-items: center;
 }
-.share-name-row label {
+.export-name-row label {
   white-space: nowrap;
   font-weight: 600;
   font-size: 0.85rem;
 }
-.share-name-row .input {
+.export-name-row .input {
   flex: 1;
   padding: 0.6rem 1rem;
   background: var(--bg-secondary);
@@ -1003,7 +1003,7 @@ footer {
   outline: none;
   transition: border-color 0.2s;
 }
-.share-name-row .input:focus {
+.export-name-row .input:focus {
   border-color: var(--color-i);
 }
 
@@ -1070,14 +1070,14 @@ footer {
   font-size: 0.85rem;
   color: var(--text-secondary);
 }
-.share-code {
+.export-code {
   display: flex;
   gap: 0.5rem;
   max-width: 600px;
   margin: 1rem auto;
   align-items: center;
 }
-.share-code code {
+.export-code code {
   flex: 1;
   padding: 0.6rem 1rem;
   background: var(--bg-secondary);
@@ -1090,7 +1090,7 @@ footer {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.share-actions {
+.export-actions {
   display: flex;
   gap: 0.75rem;
   justify-content: center;

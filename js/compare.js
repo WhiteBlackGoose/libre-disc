@@ -313,10 +313,10 @@ async function renderResults(profiles) {
       <div id="compare-insights"></div>
     </div>
 
-    <div class="card share-section">
+    <div class="card export-panel">
       <h3>${t('compare_share')}</h3>
-      <div class="share-qr"><canvas id="compare-qr"></canvas></div>
-      <div class="share-code">
+      <div class="export-qr"><canvas id="compare-qr"></canvas></div>
+      <div class="export-code">
         <code id="compare-url" style="font-size:0.75rem;word-break:break-all">${window.location.href}</code>
         <button class="btn btn-secondary btn-sm" id="copy-compare">${t('btn_copy_link')}</button>
       </div>

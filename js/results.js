@@ -139,23 +139,23 @@ async function renderPage() {
       </div>
     </div>
 
-    <div class="card share-section">
+    <div class="card export-panel">
       <h3>${t('results_share_title')}</h3>
       <p>${t('results_share_text')}</p>
-      <div class="share-name-row">
-        <label for="share-name">${t('results_share_name')}</label>
-        <input type="text" class="input" id="share-name" placeholder="${t('results_share_name_placeholder')}" value="${currentName}">
+      <div class="export-name-row">
+        <label for="export-name">${t('results_share_name')}</label>
+        <input type="text" class="input" id="export-name" placeholder="${t('results_share_name_placeholder')}" value="${currentName}">
       </div>
-      <div class="share-qr"><canvas id="result-qr"></canvas></div>
-      <div class="share-code">
+      <div class="export-qr"><canvas id="result-qr"></canvas></div>
+      <div class="export-code">
         <code id="result-code">${code}</code>
         <button class="btn btn-secondary btn-sm" id="copy-code">${t('btn_copy')}</button>
       </div>
-      <div class="share-code" style="margin-top:0.5rem">
+      <div class="export-code" style="margin-top:0.5rem">
         <code id="result-url" style="font-size:0.75rem;word-break:break-all">${shareUrl}</code>
         <button class="btn btn-secondary btn-sm" id="copy-url">${t('btn_copy_link')}</button>
       </div>
-      <div class="share-actions">
+      <div class="export-actions">
         <a href="teams.html" class="btn btn-secondary">${t('results_compare')}</a>
         <a href="index.html" class="btn btn-secondary">${t('results_retake')}</a>
       </div>
@@ -184,7 +184,7 @@ async function renderPage() {
   document.getElementById('copy-url').addEventListener('click', () => copyText(shareUrl, 'copy-url'));
 
   // Name field — updates URL, QR, and localStorage on change
-  const nameInput = document.getElementById('share-name');
+  const nameInput = document.getElementById('export-name');
   nameInput.addEventListener('input', () => {
     currentName = nameInput.value;
     saveName(currentName);
