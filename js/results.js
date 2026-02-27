@@ -6,7 +6,7 @@ import {
   loadResult, decodeResult, determineType, encodeResult, extractCode,
   renderAxisSliders, drawDiamondChart, drawAxesPlot, drawDiscWheel, preloadIcons
 } from './shared.js';
-import { drawQR } from './qr.js';
+import { drawQR, openQRFullscreen } from './qr.js';
 
 let currentScores = null;
 let currentName = '';
@@ -151,7 +151,7 @@ async function renderPage() {
         <label for="export-name">${t('results_share_name')}</label>
         <input type="text" class="input" id="export-name" placeholder="${t('results_share_name_placeholder')}" value="${currentName}">
       </div>
-      <div class="export-qr"><canvas id="result-qr"></canvas></div>
+      <div class="export-qr"><canvas id="result-qr"></canvas><span class="export-qr-hint">🔍 ${t('qr_click_enlarge')}</span></div>
       <div class="export-code">
         <code id="result-code">${code}</code>
         <button class="btn btn-secondary btn-sm" id="copy-code">${t('btn_copy')}</button>
@@ -205,6 +205,9 @@ async function renderPage() {
 
   // QR code
   drawQR(document.getElementById('result-qr'), shareUrl);
+  document.getElementById('result-qr').addEventListener('click', () => {
+    openQRFullscreen(shareUrl, currentName || '');
+  });
 }
 
 function copyText(text, btnId) {

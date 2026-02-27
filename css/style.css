@@ -978,11 +978,60 @@ footer {
 }
 .export-qr {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
   margin-bottom: 1.25rem;
 }
 .export-qr canvas {
   border-radius: var(--radius);
+  cursor: pointer;
+}
+.export-qr-hint {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.35);
+  margin-top: 0.4rem;
+  cursor: pointer;
+}
+
+/* QR Fullscreen overlay */
+.qr-fullscreen-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  animation: qr-fade-in 0.2s ease;
+}
+@keyframes qr-fade-in { from { opacity: 0; } to { opacity: 1; } }
+.qr-fullscreen-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+.qr-fullscreen-canvas {
+  border-radius: 12px;
+  box-shadow: 0 0 60px rgba(255, 255, 255, 0.08);
+}
+.qr-fullscreen-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  max-width: 80vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.qr-fullscreen-brand {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 .export-name-row {
   display: flex;

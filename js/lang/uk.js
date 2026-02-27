@@ -42,6 +42,7 @@ export default {
   btn_copy: 'Копіювати',
   btn_copied: 'Скопійовано!',
   btn_copy_link: 'Копіювати посилання',
+  qr_click_enlarge: 'Натисніть для збільшення',
   results_compare: 'Команда',
   results_retake: 'Пройти тест знову',
   approach: {

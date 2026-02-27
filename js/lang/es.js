@@ -42,6 +42,7 @@ export default {
   btn_copy: 'Copiar',
   btn_copied: '¡Copiado!',
   btn_copy_link: 'Copiar Enlace',
+  qr_click_enlarge: 'Clic para ampliar',
   results_compare: 'Equipo',
   results_retake: 'Repetir el Test',
   approach: {

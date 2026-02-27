@@ -36,3 +36,43 @@ export function drawQR(canvas, text) {
     }
   }
 }
+
+export function openQRFullscreen(url, title) {
+  const overlay = document.createElement('div');
+  overlay.className = 'qr-fullscreen-overlay';
+  overlay.innerHTML = `
+    <div class="qr-fullscreen-inner">
+      <canvas class="qr-fullscreen-canvas"></canvas>
+      ${title ? `<div class="qr-fullscreen-title">${title}</div>` : ''}
+      <div class="qr-fullscreen-brand">Libre DISC</div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const canvas = overlay.querySelector('.qr-fullscreen-canvas');
+  const qr = qrcode(0, 'L');
+  qr.addData(url, 'Byte');
+  qr.make();
+  const count = qr.getModuleCount();
+  const cellSize = Math.max(4, Math.floor(Math.min(window.innerWidth, window.innerHeight) * 0.75 / count));
+  const margin = cellSize * 2;
+  const size = count * cellSize + margin * 2;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = size * dpr;
+  canvas.height = size * dpr;
+  canvas.style.width = size + 'px';
+  canvas.style.height = size + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, size, size);
+  ctx.fillStyle = '#000000';
+  for (let r = 0; r < count; r++)
+    for (let c = 0; c < count; c++)
+      if (qr.isDark(r, c))
+        ctx.fillRect(margin + c * cellSize, margin + r * cellSize, cellSize, cellSize);
+
+  overlay.addEventListener('click', () => { overlay.remove(); });
+  document.addEventListener('keydown', function esc(e) {
+    if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', esc); }
+  });
+}

@@ -42,6 +42,7 @@ export default {
   btn_copy: 'Копировать',
   btn_copied: 'Скопировано!',
   btn_copy_link: 'Копировать ссылку',
+  qr_click_enlarge: 'Нажмите для увеличения',
   results_compare: 'Команда',
   results_retake: 'Пройти тест заново',
   approach: {

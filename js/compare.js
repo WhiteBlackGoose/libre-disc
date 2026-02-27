@@ -7,7 +7,7 @@ import {
   encodeProfiles, decodeProfiles, renderMultiAxisSliders, renderMultiScoreAxes,
   drawMultiAxesPlot, drawMultiDiscWheel, preloadIcons, addCanvasDotInteractivity
 } from './shared.js';
-import { drawQR } from './qr.js';
+import { drawQR, openQRFullscreen } from './qr.js';
 import { scanQR, parseResultUrl, hasCameraSupport } from './qr-scan.js';
 
 const PROFILE_COLORS = ['#ffffff','#9966ff','#ff6b9d','#4ecdc4','#ffe66d','#ff8a5c','#a8e6cf','#ff4757'];
@@ -296,7 +296,7 @@ async function renderResults(profiles) {
 
     <div class="card export-panel">
       <h3>${t('compare_share')}</h3>
-      <div class="export-qr"><canvas id="compare-qr"></canvas></div>
+      <div class="export-qr"><canvas id="compare-qr"></canvas><span class="export-qr-hint">🔍 ${t('qr_click_enlarge')}</span></div>
       <div class="export-code">
         <code id="compare-url" style="font-size:0.75rem;word-break:break-all">${window.location.href}</code>
         <button class="btn btn-secondary btn-sm" id="copy-compare">${t('btn_copy_link')}</button>
@@ -335,6 +335,9 @@ async function renderResults(profiles) {
 
   // QR code
   drawQR(document.getElementById('compare-qr'), window.location.href);
+  document.getElementById('compare-qr').addEventListener('click', () => {
+    openQRFullscreen(window.location.href, teamName || t('compare_title'));
+  });
 }
 
 function traitWords(text) {
