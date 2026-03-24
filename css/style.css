@@ -968,8 +968,8 @@ footer {
 }
 
 .wheel-section { text-align: center; margin: 1.5rem 0; }
-.wheel-container { display: flex; justify-content: center; }
-.wheel-container canvas { max-width: 100%; height: auto; }
+.wheel-container { display: flex; justify-content: center; max-width: 400px; margin: 0 auto; }
+.wheel-container canvas { width: 100%; aspect-ratio: 1 / 1; }
 
 .export-panel {
   text-align: center;
